@@ -1,228 +1,326 @@
-# Restaurant Offers Service
+# bq-listing-service
 
-A small microservice that manages restaurant offers and promotions. This README documents the project purpose, core features, quick start, configuration, API surface, testing, deployment hints and contribution guidelines.
+A multi-vertical listing microservice for the [BrowseQatar](https://browseqatar.com) platform. Provides a unified REST API for managing listings across all verticals — **Vehicles**, **Accommodations**, **Services**, **Classifieds**, **Jobs**, and **Restaurant Offers** — along with restaurant management, bulk operations, enquiries, and user authentication.
 
-Status: WIP (work in progress)
-
-## Table of contents
+## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Getting started](#getting-started)
+- [Verticals Supported](#verticals-supported)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
 - [Configuration](#configuration)
-- [API (example endpoints)](#api-example-endpoints)
-- [Testing](#testing)
-- [Docker](#docker)
+- [API Reference](#api-reference)
+  - [Listings](#listings)
+  - [Restaurant Offers](#restaurant-offers)
+  - [Restaurants](#restaurants)
+  - [Enquiries](#enquiries)
+  - [Authentication](#authentication)
+  - [Bulk Operations](#bulk-operations)
+- [Data Models](#data-models)
+- [Scripts](#scripts)
+- [Deployment (GCP)](#deployment-gcp)
 - [Contributing](#contributing)
 - [License](#license)
-- [Maintainer / Contact](#maintainer--contact)
+
+---
 
 ## Overview
 
-This service provides CRUD operations for restaurant offers and basic filtering/search capabilities (by restaurant, status, date range). It exposes a JSON REST API and is intended to be deployed as a microservice behind an API gateway or load balancer.
+`bq-listing-service` is the backend Node.js/Express service that powers the BrowseQatar multi-vertical marketplace. It exposes a JSON REST API, connects to MongoDB Atlas, uses Firebase Admin for authentication, and integrates with Google Cloud Storage for image uploads.
 
-## Features
+The service supports in-memory caching with automatic invalidation via MongoDB change streams, keeping response times fast without stale data.
 
-- Create, read, update and delete (CRUD) offers
-- Filter and search offers (restaurant, status, date ranges)
-- Pagination for listing endpoints
-- Basic input validation and HTTP status codes
-- Environment-driven configuration for port, DB and logging
-- Optional database persistence (Postgres recommended)
+---
 
-## Tech stack
+## Verticals Supported
 
-Replace any placeholders below with the actual stack used in the repo:
+| Vertical ID      | Description                    |
+|-----------------|-------------------------------|
+| `vehicles`       | Buy & sell cars and bikes      |
+| `accommodations` | Apartments, villas, rooms      |
+| `services`       | Cleaning, repairs, IT, etc.    |
+| `classifieds`    | General buy & sell items       |
+| `jobs`           | Job listings                   |
+| `restaurants`    | Restaurant offers & promotions |
 
-- Language: Node.js + TypeScript (or JavaScript)
-- Web framework: Express / Fastify / NestJS (replace with actual framework)
-- Database: PostgreSQL (optional; can be swapped for SQLite for local dev)
-- ORM/Query: TypeORM / Prisma / Sequelize / Knex (replace as applicable)
-- Testing: Jest / Mocha / Supertest
-- Containerization: Docker (optional)
+---
 
-## Getting started (local development)
+## Tech Stack
 
-These commands assume Node.js and git are installed. Adjust if the project uses a different runtime/package manager.
+- **Runtime:** Node.js (ESM)
+- **Framework:** Express.js
+- **Database:** MongoDB via Mongoose
+- **Auth:** Firebase Admin SDK (JWT verification)
+- **Storage:** Google Cloud Storage (image uploads)
+- **Caching:** node-cache (in-memory, TTL-based)
+- **Email:** SendGrid / Nodemailer
+- **File Uploads:** Multer
 
-1. Clone the repository
-   git clone https://github.com/ajmalkkt/restaurant-offers-service.git
-   cd restaurant-offers-service
+---
 
-2. Install dependencies
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
+## Getting Started
 
-3. Create environment config
-   Copy .env.example to .env and edit values (see Configuration section).
+### Prerequisites
 
-4. Run migrations (if any)
-   npm run migrate
-   # or
-   yarn migrate
+- Node.js 18+
+- A MongoDB Atlas connection string
+- A Firebase service account JSON
+- (Optional) A Google Cloud Storage bucket for image uploads
 
-5. Start the service
-   npm run dev
-   # or
-   npm start
+### Installation
 
-The service should be reachable at http://localhost:3000 (or the PORT you set).
+```bash
+git clone https://github.com/ajmalkkt/bq-listing-service.git
+cd bq-listing-service
+npm install
+```
+
+### Run in Development
+
+```bash
+npm run dev
+```
+
+### Run in Production
+
+```bash
+npm start
+```
+
+The server starts on `http://localhost:5000` by default (configurable via `PORT`).
+
+---
 
 ## Configuration
 
-Typical environment variables (adjust to actual implementation):
+Create a `.env` file in the project root based on the variables below:
 
-- PORT=5000
-- NODE_ENV=development
-- DATABASE_URL=postgres://user:password@localhost:5432/restaurant_offers
-- JWT_SECRET=your_jwt_secret
-- LOG_LEVEL=info
+```env
+# Server
+PORT=5000
+NODE_ENV=development
+PROTOCOL=https
 
-Put these into a .env file or export them in your environment. If the repo includes a .env.example, use it as the canonical list.
+# MongoDB
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/bq-listing
 
-## API (example)
+# Firebase Admin
+FIREBASE_SERVICE_ACCOUNT_KEY=./serviceAccountKey.json
 
-Update the below endpoint paths and request/response shapes to match the implementation.
+# Google Cloud Storage
+GCS_BUCKET_NAME=your-bucket-name
 
-- GET /offers
-  - Query params: restaurantId, status, fromDate, toDate, page, limit
-  - Response: paginated list of offers
+# SendGrid (email)
+SENDGRID_API_KEY=SG.xxxxx
 
-- POST /offers
-  - Body:
-    {
-      "restaurantId": "abc123",
-      "title": "Weekend Special",
-      "description": "20% off all pizzas",
-      "startDate": "2025-10-01",
-      "endDate": "2025-10-31",
-      "discount": 20
-    }
-  - Response: created offer (HTTP 201)
-
-- GET /offers/:id
-  - Response: offer by id or 404
-
-- PUT /offers/:id
-  - Body: fields to update
-  - Response: updated offer
-
-- DELETE /offers/:id
-  - Response: 204 No Content on success
-
-Errors return standard HTTP codes (400, 401, 403, 404, 422, 500) with JSON bodies:
-{
-  "error": "ValidationError",
-  "message": "Field X is required",
-  "details": [...]
-}
-
-## Example cURL
-
-Create an offer:
-curl -X POST http://localhost:3000/offers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "restaurantId": "abc123",
-    "title": "Weekend Special",
-    "description": "20% off pizzas",
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-31",
-    "discount": 20
-  }'
-
-Get offers:
-curl http://localhost:3000/offers?restaurantId=abc123&status=active
-
-## Testing
-
-Run tests (replace with the real command in the repo):
-
-- npm test
-- npm run test:watch
-- npm run test:ci
-
-If the test suite depends on a database, the README should document how to run tests against a test DB or use in-memory fixtures.
-
-## Docker
-
-If you use Docker, add a Dockerfile and (optionally) docker-compose.yml. Example commands:
-
-- docker build -t restaurant-offers-service .
-- docker run -e DATABASE_URL=$DATABASE_URL -p 3000:3000 restaurant-offers-service
-
-Example docker-compose snippet (replace image, env and volumes as needed):
-```yaml
-version: "3.8"
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgres://user:pass@db:5432/restaurant_offers
-    depends_on:
-      - db
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: restaurant_offers
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-    volumes:
-      - db-data:/var/lib/postgresql/data
-volumes:
-  db-data:
+# API Security
+API_TOKEN=your-internal-api-token
 ```
-##First time check-in 
-echo "# restaurant-offers-service" >> README.md
-git init
-git add README.md 
-git commit -m "first commit" 
-git branch -M main 
-git remote add origin https://github.com/ajmalkkt/restaurant-offers-service.git 
-git push -u origin main 
 
-or push an existing repository from the command line
-git remote add origin https://github.com/ajmalkkt/restaurant-offers-service.git
-git branch -M main
-git push -u origin main
+> **Note:** Never commit `.env` or `serviceAccountKey.json` to version control. Both are listed in `.gitignore`.
+
+---
+
+## API Reference
+
+All routes are prefixed with `/api`. Authentication uses Firebase Bearer tokens unless marked **Public**.
+
+### Listings
+
+Base path: `/api/listings`
+
+| Method | Endpoint              | Auth     | Description                              |
+|--------|-----------------------|----------|------------------------------------------|
+| GET    | `/`                   | Public   | Get all listings (filtered)              |
+| GET    | `/:id`                | Public   | Get a single listing by ID               |
+| GET    | `/verticals`          | Public   | Get all enabled verticals                |
+| POST   | `/`                   | Admin    | Create a new listing                     |
+| PUT    | `/:id`                | Admin    | Update a listing                         |
+
+#### Query Parameters — `GET /api/listings`
+
+| Param      | Type   | Description                                      |
+|------------|--------|--------------------------------------------------|
+| `vertical` | string | Filter by vertical (e.g. `vehicles`, `jobs`)     |
+| `category` | string | Filter by category                               |
+| `city`     | string | Filter by city                                   |
+| `search`   | string | Text search on title & description               |
+| `status`   | string | `active` (default) or `inactive`                |
+
+#### Example
+
+```bash
+# Get all active vehicle listings
+curl http://localhost:5000/api/listings?vertical=vehicles
+
+# Get a single listing
+curl http://localhost:5000/api/listings/101
+```
+
+---
+
+### Restaurant Offers
+
+Base path: `/api/offers`
+
+| Method | Endpoint                    | Auth     | Description                          |
+|--------|-----------------------------|----------|--------------------------------------|
+| GET    | `/`                         | Public   | Get all offers (filtered)            |
+| GET    | `/:id`                      | Public   | Get offer by ID                      |
+| GET    | `/:id/image`                | Public   | Get offer image                      |
+| POST   | `/`                         | Admin    | Create offer (multipart/form-data)   |
+| PUT    | `/:id`                      | Admin    | Update offer                         |
+| DELETE | `/:id`                      | Admin    | Delete offer                         |
+| PATCH  | `/inactivate`               | Admin    | Bulk inactivate offers               |
+| PATCH  | `/bulk-activate`            | Admin    | Bulk activate offers                 |
+
+#### Query Parameters — `GET /api/offers`
+
+| Param        | Type   | Description                        |
+|--------------|--------|------------------------------------|
+| `restaurant` | string | Filter by restaurant ID            |
+| `cuisine`    | string | Filter by cuisine type             |
+| `city`       | string | Filter by city                     |
+| `search`     | string | Text search on title/description   |
+
+---
+
+### Restaurants
+
+Base path: `/api/restaurants`
+
+| Method | Endpoint   | Auth     | Description              |
+|--------|------------|----------|--------------------------|
+| GET    | `/`        | Public   | Get all restaurants      |
+| GET    | `/:id`     | Public   | Get restaurant by ID     |
+| POST   | `/`        | Admin    | Create restaurant        |
+| PUT    | `/:id`     | Admin    | Update restaurant        |
+| DELETE | `/:id`     | Admin    | Delete restaurant        |
+
+---
+
+### Enquiries
+
+Base path: `/api/enquiry`
+
+| Method | Endpoint | Auth   | Description           |
+|--------|----------|--------|-----------------------|
+| POST   | `/`      | Public | Submit an enquiry     |
+| GET    | `/`      | Admin  | Get all enquiries     |
+
+---
+
+### Authentication
+
+Base path: `/api/auth`
+
+| Method | Endpoint    | Auth   | Description              |
+|--------|-------------|--------|--------------------------|
+| POST   | `/register` | Public | Register a new user      |
+| POST   | `/login`    | Public | Login (returns token)    |
+| GET    | `/me`       | Token  | Get current user profile |
+
+---
+
+### Bulk Operations
+
+Base path: `/api/bulk`
+
+| Method | Endpoint  | Auth  | Description                          |
+|--------|-----------|-------|--------------------------------------|
+| POST   | `/upload` | Admin | Bulk upload listings via Excel/CSV   |
+
+---
+
+## Data Models
+
+### Listing
+
+```js
+{
+  id: Number,               // Auto-incremented sequence ID
+  verticalId: String,       // e.g. 'vehicles', 'jobs'
+  providerId: Number,
+  title: String,
+  description: String,
+  category: String,
+  subcategory: String,
+  attributes: Mixed,        // Vertical-specific fields (make, model, bedrooms, etc.)
+  pricing: {
+    originalPrice: Number,
+    discountedPrice: Number,
+    currency: String,       // Default: 'QAR'
+    unit: String            // e.g. 'night', 'day', 'session'
+  },
+  validity: {
+    from: Date,
+    to: Date
+  },
+  location: {
+    city: String,
+    country: String,
+    address: String
+  },
+  imageUrl: String,
+  galleryUrls: [String],
+  status: String,           // 'active' | 'inactive' | 'pending' | 'archived'
+  active: Boolean,
+  rating: Number,
+  reviewsCount: Number,
+  ownerLogin: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+---
+
+## Scripts
+
+Utility scripts located in `./scripts/`:
+
+| Script              | Description                                  |
+|--------------------|----------------------------------------------|
+| `seedVerticals.js`  | Seeds the `verticals` collection in MongoDB  |
+
+```bash
+node scripts/seedVerticals.js
+```
+
+---
+
+## Deployment (GCP)
+
+The service is designed for Google App Engine (Standard / Flexible) or Cloud Run.
+
+```bash
+# Deploy to App Engine
+gcloud app deploy
+
+# Or build and deploy to Cloud Run
+gcloud run deploy bq-listing-service \
+  --source . \
+  --region asia-south1 \
+  --allow-unauthenticated
+```
+
+Refer to the `.agent/skills/gcp/SKILL.md` for full deployment instructions.
+
+---
 
 ## Contributing
 
-Contributions are welcome. Suggested flow:
-
 1. Fork the repository
-2. Create a feature branch: git checkout -b feat/my-change
-3. Implement changes and add tests
-4. Run tests locally and ensure linting passes
-5. Open a pull request describing what you changed and why
+2. Create a feature branch: `git checkout -b feat/my-change`
+3. Make changes and commit: `git commit -m "feat: describe change"`
+4. Push and open a Pull Request
 
-Please follow existing code style and add tests for new behavior.
+Please follow existing code style and document any new API endpoints in this README.
+
+---
 
 ## License
 
-Add the appropriate license here, for example:
-MIT License — see LICENSE file.
+MIT License — see [LICENSE](LICENSE) file.
 
-## Maintainer / Contact
-
-Maintainer: @ajmalkkt
-
-## First time check-in commands - For my reference
-echo "# restaurant-offers-service" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/ajmalkkt/restaurant-offers-service.git
-git push -u origin main
-
-or push an existing repository from the command line
-git remote add origin https://github.com/ajmalkkt/restaurant-offers-service.git
-git branch -M main
-git push -u origin main
+**Maintainer:** [@ajmalkkt](https://github.com/ajmalkkt)
