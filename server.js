@@ -33,14 +33,10 @@ const app = express();
 
 // Allow only your frontend origin
 const allowedOrigins = [
-  "https://dine-deals-dot-browseqatar.el.r.appspot.com", // frontend test App 
+  "https://browse-qatar-dot-browseqatar.el.r.appspot.com", // frontend test App 
   "https://browseqatar.com",
   "https://www.browseqatar.com", 
   "www.browseqatar.com",// main website
-  "http://localhost:8081", // Optional: for local development
-  "http://127.0.0.1:3000","http://localhost:5173", // Optional: for local development
-  "http://127.0.0.1:5173",
-  "null", // For local HTML file opened via file:// (origin 'null')
 ];
 //app.use(cors({ origin: "*" }));  // For testing purposes only
 const corsOptions = {
