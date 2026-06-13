@@ -8,7 +8,8 @@ const verticalSchema = new mongoose.Schema({
   config: { type: mongoose.Schema.Types.Mixed }, // JSON storage for dynamic config
   icon: { type: String },
   color: { type: String },
-  route: { type: String }
+  route: { type: String },
+  providerTypes: [{ type: String }]
 }, { timestamps: true });
 
 export default mongoose.model("Vertical", verticalSchema);

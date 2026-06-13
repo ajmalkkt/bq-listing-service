@@ -5,6 +5,13 @@ import { getNextSequence } from "../utils/sequenceGenerator.js";
 import { log } from "console";
 import { getCache, setCache } from "../utils/cacheHelper.js";
 import sortResults from "../utils/searchHelper.js";
+import { uploadImageToGCS } from '../service/storageService.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Get all listings across all verticals with optional filtering
@@ -100,13 +107,62 @@ export const createListing = async (req, res) => {
   try {
     const data = req.body;
     const listingId = await getNextSequence("listings");
+    const saveToDB = process.env.SAVE_IMAGES_TO_DB === "true";
     
-    const newListing = new Listing({
+    const newListingData = {
       ...data,
       id: listingId,
       ownerLogin: req.user?.email || 'admin'
-    });
+    };
 
+    // Parse JSON fields
+    if (data.pricing) newListingData.pricing = JSON.parse(data.pricing);
+    if (data.location) newListingData.location = JSON.parse(data.location);
+    if (data.validity) newListingData.validity = JSON.parse(data.validity);
+    if (data.attributes) newListingData.attributes = JSON.parse(data.attributes);
+
+    // Handle Main Image
+    if (req.files && req.files.image && req.files.image[0]) {
+      const file = req.files.image[0];
+      if (saveToDB) {
+        try {
+          const gcsUrl = await uploadImageToGCS(file, null, data.providerId, data.title, listingId, 'listings');
+          newListingData.imageUrl = gcsUrl;
+        } catch (uploadError) {
+          console.error("Upload Service Failed:", uploadError);
+        }
+      } else {
+        const folderPath = path.join(__dirname, "../uploads/listings");
+        if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+        const filePath = path.join(folderPath, `listing-${listingId}.jpg`);
+        fs.writeFileSync(filePath, file.buffer);
+        newListingData.imageUrl = `/uploads/listings/listing-${listingId}.jpg`;
+      }
+    }
+
+    // Handle Gallery Images
+    if (req.files && req.files.galleryUrls && req.files.galleryUrls.length > 0) {
+      newListingData.galleryUrls = [];
+      for (let i = 0; i < req.files.galleryUrls.length; i++) {
+        const file = req.files.galleryUrls[i];
+        if (saveToDB) {
+          try {
+            const gcsUrl = await uploadImageToGCS(file, null, data.providerId, `${data.title}-gallery-${i}`, listingId, 'listings');
+            newListingData.galleryUrls.push(gcsUrl);
+          } catch (err) {
+            console.error("Gallery upload failed", err);
+          }
+        } else {
+          const folderPath = path.join(__dirname, "../uploads/listings");
+          if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+          const filePath = path.join(folderPath, `listing-${listingId}-gallery-${i}.jpg`);
+          fs.writeFileSync(filePath, file.buffer);
+          newListingData.galleryUrls.push(`/uploads/listings/listing-${listingId}-gallery-${i}.jpg`);
+        }
+      }
+    }
+
+    const newListing = new Listing(newListingData);
     await newListing.save();
     log(`Created new listing: ${listingId} in vertical: ${newListing.verticalId}`);
     
@@ -123,10 +179,73 @@ export const updateListing = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
+    const saveToDB = process.env.SAVE_IMAGES_TO_DB === "true";
+    
+    const updateData = { ...data };
+
+    // Parse JSON fields
+    if (data.pricing) updateData.pricing = JSON.parse(data.pricing);
+    if (data.location) updateData.location = JSON.parse(data.location);
+    if (data.validity) updateData.validity = JSON.parse(data.validity);
+    if (data.attributes) updateData.attributes = JSON.parse(data.attributes);
+
+    // Provide default fallback variables for title and providerId in case they are not in the update payload
+    let title = data.title || `listing-${id}`;
+    let providerId = data.providerId || "unknown";
+
+    // Try to fetch existing listing if we need to fall back for title/provider
+    if (!data.title || !data.providerId) {
+       const existing = await Listing.findOne({ id: parseInt(id) });
+       if (existing) {
+         if (!data.title) title = existing.title;
+         if (!data.providerId) providerId = existing.providerId;
+       }
+    }
+
+    // Handle Main Image
+    if (req.files && req.files.image && req.files.image[0]) {
+      const file = req.files.image[0];
+      if (saveToDB) {
+        try {
+          const gcsUrl = await uploadImageToGCS(file, null, providerId, title, id, 'listings');
+          updateData.imageUrl = gcsUrl;
+        } catch (uploadError) {
+          console.error("Upload Service Failed:", uploadError);
+        }
+      } else {
+        const folderPath = path.join(__dirname, "../uploads/listings");
+        if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+        const filePath = path.join(folderPath, `listing-${id}.jpg`);
+        fs.writeFileSync(filePath, file.buffer);
+        updateData.imageUrl = `/uploads/listings/listing-${id}.jpg`;
+      }
+    }
+
+    // Handle Gallery Images (Replaces existing gallery for simplicity, or appends depending on requirement)
+    if (req.files && req.files.galleryUrls && req.files.galleryUrls.length > 0) {
+      updateData.galleryUrls = [];
+      for (let i = 0; i < req.files.galleryUrls.length; i++) {
+        const file = req.files.galleryUrls[i];
+        if (saveToDB) {
+          try {
+            const gcsUrl = await uploadImageToGCS(file, null, providerId, `${title}-gallery-${i}`, id, 'listings');
+            updateData.galleryUrls.push(gcsUrl);
+          } catch (err) {
+            console.error("Gallery upload failed", err);
+          }
+        } else {
+          const folderPath = path.join(__dirname, "../uploads/listings");
+          if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+          const filePath = path.join(folderPath, `listing-${id}-gallery-${i}.jpg`);
+          fs.writeFileSync(filePath, file.buffer);
+          updateData.galleryUrls.push(`/uploads/listings/listing-${id}-gallery-${i}.jpg`);
+        }
+      }
+    }
     
     const listing = await Listing.findOneAndUpdate(
       { id: parseInt(id) },
-      { $set: data },
+      { $set: updateData },
       { new: true }
     );
 

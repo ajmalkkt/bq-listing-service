@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+//dealer/ seller/ landlord/ restaurant/owner/broker etc.
 const providerSchema = new mongoose.Schema({
   id: { type: Number, unique: true },
   verticalId: { type: String, required: true },
