@@ -270,3 +270,75 @@ export const getVerticals = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+/**
+ * Get inactive listings
+ */
+export const getInactiveListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({ active: false });
+    res.status(200).json(listings);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching inactive listings", error: err.message });
+  }
+};
+
+/**
+ * Get active listings
+ */
+export const getActiveListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({ active: true });
+    res.status(200).json(listings);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching active listings", error: err.message });
+  }
+};
+
+/**
+ * Activate a single listing
+ */
+export const activateListing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findOneAndUpdate({ id }, { active: true }, { status: 'active' }, { new: true });
+    if (!listing) return res.status(404).json({ message: "Listing not found" });
+    res.status(200).json({ message: "Listing activated successfully", listing });
+  } catch (err) {
+    res.status(500).json({ message: "Error activating listing", error: err.message });
+  }
+};
+
+/**
+ * Bulk activate listings
+ */
+export const bulkActivateListings = async (req, res) => {
+  try {
+    const { offerIds } = req.body; // reuse the same body signature as offers for ease
+    const ids = offerIds || req.body.listingIds;
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ message: "Invalid payload" });
+    }
+    await Listing.updateMany({ id: { $in: ids } }, { $set: { active: true , status: 'active' } });
+    res.status(200).json({ message: "Listings activated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error bulk activating listings", error: err.message });
+  }
+};
+
+/**
+ * Inactivate listings
+ */
+export const inActivateListings = async (req, res) => {
+  try {
+    const { offerIds } = req.body;
+    const ids = offerIds || req.body.listingIds;
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ message: "Invalid payload" });
+    }
+    await Listing.updateMany({ id: { $in: ids } }, { $set: { active: false, status: 'inactive' } });
+    res.status(200).json({ message: "Listings inactivated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error inactivating listings", error: err.message });
+  }
+};

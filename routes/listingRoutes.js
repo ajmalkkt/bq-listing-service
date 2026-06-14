@@ -4,9 +4,14 @@ import {
   getListingById, 
   createListing, 
   updateListing, 
-  getVerticals 
+  getVerticals,
+  getInactiveListings,
+  getActiveListings,
+  activateListing,
+  bulkActivateListings,
+  inActivateListings
 } from "../controllers/listingController.js";
-import { verifyAuthToken, verifyAdmin } from "../middleware/authMiddleware.js";
+import { verifyAuthToken, verifyAdmin, requireRole } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
@@ -22,7 +27,12 @@ const uploadFields = upload.fields([
 ]);
 
 // Protected routes
-router.post("/", verifyAuthToken, verifyAdmin, uploadFields, createListing);
-router.put("/:id", verifyAuthToken, verifyAdmin, uploadFields, updateListing);
+router.post("/", verifyAuthToken, requireRole('restaurant_owner'), uploadFields, createListing);
+router.put("/:id", verifyAuthToken, requireRole('restaurant_owner'), uploadFields, updateListing);
+router.get("/all/inactive", getInactiveListings);
+router.get("/all/active", getActiveListings);
+router.patch("/activate/:id", verifyAuthToken, verifyAdmin, activateListing);
+router.patch("/inactivate", verifyAuthToken, verifyAdmin, inActivateListings);
+router.patch("/bulk-activate", verifyAuthToken, verifyAdmin, bulkActivateListings);
 
 export default router;
