@@ -9,7 +9,8 @@ import {
   getActiveListings,
   activateListing,
   bulkActivateListings,
-  inActivateListings
+  inActivateListings,
+  deleteListing
 } from "../controllers/listingController.js";
 import { verifyAuthToken, verifyAdmin, requireRole } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
@@ -34,5 +35,6 @@ router.get("/all/active", getActiveListings);
 router.patch("/activate/:id", verifyAuthToken, verifyAdmin, activateListing);
 router.patch("/inactivate", verifyAuthToken, verifyAdmin, inActivateListings);
 router.patch("/bulk-activate", verifyAuthToken, verifyAdmin, bulkActivateListings);
+router.delete("/:id", verifyAuthToken, requireRole('restaurant_owner'), deleteListing);
 
 export default router;

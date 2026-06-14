@@ -342,3 +342,17 @@ export const inActivateListings = async (req, res) => {
     res.status(500).json({ message: "Error inactivating listings", error: err.message });
   }
 };
+
+/**
+ * Delete listing
+ */
+export const deleteListing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findOneAndDelete({ id });
+    if (!listing) return res.status(404).json({ message: `Ads Listing with Id- ${id} not found` });
+    res.status(200).json({ message: "Ads Listing deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: `Error deleting listing id: ${id}`, error: err.message });
+  }
+};
