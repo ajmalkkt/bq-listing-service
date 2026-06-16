@@ -5,7 +5,8 @@ import Restaurant from "../models/Restaurant.js";
 import { getNextSequence, setSequenceValue } from "../utils/sequenceGenerator.js";
 import {
   uploadRestaurantImageToGCS, deleteAllRestaurantImages,
-  deleteAllOffersForRestaurant, deleteAllImagesFromGCS
+  deleteAllOffersForRestaurant, deleteAllImagesFromGCS,
+  uploadRestaurantMenuImageToGCS, deleteRestaurantMenuImage
 } from '../service/storageService.js';
 import { log } from "console";
 import { getCache, setCache } from "../utils/cacheHelper.js";
@@ -364,6 +365,86 @@ export const deleteAllImages = async (req, res) => {
     res.json({ success: true, message: `Deleted all images from GCS.` });
   } catch (err) {
     console.error("Error deleting all images from GCS:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// Upload one or more menu page images for a restaurant
+// POST /api/restaurants/:id/menu
+export const uploadMenuImages = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const restaurant = await Restaurant.findOne({ id });
+    if (!restaurant) return res.status(404).json({ message: 'Restaurant not found' });
+
+    // Check ownership
+    if (restaurant.ownerLogin !== req.user.email && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: You do not own this restaurant' });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No menu image files provided' });
+    }
+
+    const startIndex = (restaurant.menuImages || []).length;
+    const uploadedUrls = [];
+
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+      const gcsUrl = await uploadRestaurantMenuImageToGCS(
+        file, file.mimetype, restaurant.id, restaurant.name, startIndex + i
+      );
+      uploadedUrls.push(gcsUrl);
+      log(`Menu page ${startIndex + i} uploaded for restaurant ${restaurant.name}: ${gcsUrl}`);
+    }
+
+    const updatedRestaurant = await Restaurant.findOneAndUpdate(
+      { id },
+      { $push: { menuImages: { $each: uploadedUrls } } },
+      { new: true }
+    );
+
+    res.json({ success: true, menuImages: updatedRestaurant.menuImages });
+  } catch (err) {
+    console.error('Error uploading menu images:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete a specific menu page image from a restaurant
+// DELETE /api/restaurants/:id/menu?url=...
+export const deleteMenuImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { url } = req.query;
+
+    if (!url) return res.status(400).json({ message: 'url query param required' });
+
+    const restaurant = await Restaurant.findOne({ id });
+    if (!restaurant) return res.status(404).json({ message: 'Restaurant not found' });
+
+    if (restaurant.ownerLogin !== req.user.email && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: You do not own this restaurant' });
+    }
+
+    // Delete from GCS
+    try {
+      await deleteRestaurantMenuImage(url);
+    } catch (gcsErr) {
+      console.warn('GCS delete failed (may not exist), continuing DB cleanup:', gcsErr.message);
+    }
+
+    // Remove from DB
+    const updatedRestaurant = await Restaurant.findOneAndUpdate(
+      { id },
+      { $pull: { menuImages: url } },
+      { new: true }
+    );
+
+    res.json({ success: true, menuImages: updatedRestaurant.menuImages });
+  } catch (err) {
+    console.error('Error deleting menu image:', err);
     res.status(500).json({ error: err.message });
   }
 };

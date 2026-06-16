@@ -17,6 +17,7 @@ const restaurantSchema = new mongoose.Schema({
   brandImageType: { type: String },
   ownerLogin: { type: String },//email of restaurant owner
   active: { type: Boolean, default: true },
+  menuImages: [{ type: String }], // Array of GCS URLs for menu page images
 }, { timestamps: true }); // timestamps: true will add createdAt and updatedAt fields
 
 export default mongoose.model("Restaurant", restaurantSchema);

@@ -241,3 +241,71 @@ export const deleteAllImagesFromGCS = async () => {
     throw error;
   }
 };
+
+
+/**
+ * Uploads a single menu page image for a restaurant to GCS.
+ * Path: restaurants/{safeRestaurantName}-{id}/menu/menu-page-{pageIndex}.{ext}
+ */
+export const uploadRestaurantMenuImageToGCS = (fileInput, manualMimeType = null, restaurantId, name, pageIndex) => {
+  return new Promise((resolve, reject) => {
+    if (!fileInput) return reject(new Error('No file provided'));
+
+    let buffer;
+    let contentType;
+
+    if (Buffer.isBuffer(fileInput)) {
+      if (!manualMimeType) return reject(new Error('MIME type required for raw Buffer.'));
+      buffer = fileInput;
+      contentType = manualMimeType;
+    } else if (fileInput && fileInput.buffer) {
+      buffer = fileInput.buffer;
+      contentType = fileInput.mimetype;
+    } else {
+      return reject(new Error('Invalid file input. Expected Buffer or Multer object.'));
+    }
+
+    const safeTitle = sanitizeFilename(name, restaurantId);
+    const restaurantFolder = `${safeTitle}-${restaurantId}`;
+    const extension = contentType.split('/')[1] || 'jpg';
+    const fileName = `restaurants/${restaurantFolder}/menu/menu-page-${pageIndex}-${Date.now()}.${extension}`;
+    log(`Uploading menu page ${pageIndex} for restaurant "${name}", GCS file="${fileName}"`);
+
+    const file = bucket.file(fileName);
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType,
+        cacheControl: 'public, max-age=7776000',
+      },
+      resumable: false,
+    });
+
+    stream.on('error', (err) => { console.error('GCS Menu Stream Error:', err); reject(err); });
+    stream.on('finish', () => {
+      const publicUrl = `https://storage.googleapis.com/${process.env.GCLOUD_BUCKET_NAME}/${fileName}`;
+      resolve(publicUrl);
+    });
+
+    stream.end(buffer);
+  });
+};
+
+/**
+ * Deletes a specific menu page image from GCS by its full public URL.
+ */
+export const deleteRestaurantMenuImage = async (publicUrl) => {
+  try {
+    const bucketName = process.env.GCLOUD_BUCKET_NAME;
+    const prefix = `https://storage.googleapis.com/${bucketName}/`;
+    if (!publicUrl.startsWith(prefix)) {
+      throw new Error(`URL does not belong to bucket: ${publicUrl}`);
+    }
+    const filePath = publicUrl.slice(prefix.length);
+    log(`Deleting menu image from GCS: ${filePath}`);
+    await bucket.file(filePath).delete();
+    log(`Deleted menu image: ${filePath}`);
+  } catch (error) {
+    console.error(`Error deleting menu image from GCS:`, error);
+    throw error;
+  }
+};
