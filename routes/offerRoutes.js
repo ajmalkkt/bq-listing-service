@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middleware/upload.js";
-import { verifyApiToken, verifyAdmin, requireRole } from "../middleware/authMiddleware.js";
+import { verifyApiToken, verifyAdmin, requireRole, verifyAuthToken } from "../middleware/authMiddleware.js";
 import {
   addOrUpdateOffer,
   updateOffer,
@@ -30,7 +30,7 @@ router.get("/:id", getOfferById);
 router.get("/:restaurantId/restaurant", getOffersByRestaurant);
 router.get("/search/:cuisine", getOffersByCuisineOrCategory);
 router.get("/:id/image", getOfferImage);
-router.delete("/:id", verifyApiToken, requireRole('restaurant_owner'), deleteOffer);
+router.delete("/:id", verifyAuthToken, requireRole('restaurant_owner'), deleteOffer);
 router.patch("/activate/:id", verifyApiToken, verifyAdmin, activateOffer);
 router.patch("/inactivate", verifyApiToken, verifyAdmin, inActivateOffers);
 router.patch("/bulk-activate", verifyApiToken, verifyAdmin, bulkActivateOffers);

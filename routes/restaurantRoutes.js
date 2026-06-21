@@ -33,7 +33,7 @@ router.get("/all/active", getActiveRestaurants);
 // Get a restaurant’s image (logo or brand)
 router.get("/:id/image/:type", getRestaurantImage);
 router.get("/:id", getRestaurantById);
-router.delete("/:id", verifyApiToken, requireRole('restaurant_owner'), deleteRestaurant);
+router.delete("/:id", verifyAuthToken, requireRole('restaurant_owner'), deleteRestaurant);
 router.delete("/delete/all", verifyApiToken, verifyAdmin, deleteAllRestaurants);
 router.delete("/delete/images/all", verifyApiToken, verifyAdmin, deleteAllRestaurantsImages);
 router.delete("/delete/images/folders", verifyApiToken, verifyAdmin, deleteAllImages);

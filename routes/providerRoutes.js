@@ -7,7 +7,7 @@ import {
   updateProvider,
   deleteProvider,
 } from "../controllers/providerController.js";
-import { verifyAuthToken, verifyAdmin } from "../middleware/authMiddleware.js";
+import { verifyAuthToken, verifyAdmin, requireRole } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
@@ -28,6 +28,6 @@ router.get("/mine", verifyAuthToken, getMyProviders);
 // Admin or owner protected
 router.post("/", verifyAuthToken, uploadFields, createProvider);
 router.put("/:id", verifyAuthToken, uploadFields, updateProvider);
-router.delete("/:id", verifyAuthToken, verifyAdmin, deleteProvider);
+router.delete("/:id", verifyAuthToken, requireRole('restaurant_owner'), deleteProvider);
 
 export default router;
