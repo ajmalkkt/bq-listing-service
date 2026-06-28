@@ -296,7 +296,8 @@ export const uploadRestaurantMenuImageToGCS = (fileInput, manualMimeType = null,
 export const deleteRestaurantMenuImage = async (publicUrl) => {
   try {
     const bucketName = process.env.GCLOUD_BUCKET_NAME;
-    const prefix = `https://storage.googleapis.com/${bucketName}/`;
+    const gcsDomain = process.env.GCLOUD_STORAGE_DOMAIN || 'https://storage.googleapis.com';
+    const prefix = `${gcsDomain}/${bucketName}/`;
     if (!publicUrl.startsWith(prefix)) {
       throw new Error(`URL does not belong to bucket: ${publicUrl}`);
     }
@@ -306,6 +307,61 @@ export const deleteRestaurantMenuImage = async (publicUrl) => {
     log(`Deleted menu image: ${filePath}`);
   } catch (error) {
     console.error(`Error deleting menu image from GCS:`, error);
+    throw error;
+  }
+};
+
+//delete all images for provider when provider is deleted. This will delete all images for that provider from GCS storage.
+export const deleteProviderImages = async (providerId) => {
+  try {
+    const providerFolder = `providers/${providerId}`;
+    log(`Deleting all images for provider: ${providerId}`);
+    await bucket.deleteFiles({
+      prefix: providerFolder,
+    });
+    log(`Deleted all images for provider: ${providerId}`);
+  } catch (error) {
+    console.error(`Error deleting provider images from GCS:`, error);
+    throw error;
+  }
+};
+
+//delete all liting images for a specific provider(id)
+export const deleteAllListingImagesForProvider = async (providerId) => {
+  try {
+    const listingsFolder = `listings/${providerId}`;
+    log(`Deleting all listing images for provider: ${providerId}`);
+    await bucket.deleteFiles({
+      prefix: listingsFolder,
+    });
+    log(`Deleted all listing images for provider: ${providerId}`);
+  } catch (error) {
+    console.error(`Error deleting listing images for provider ${providerId}:`, error);
+    throw error;
+  }
+};
+
+//delete all images for listing  based on the list of urls provided.
+//  This will delete all images for that listing from GCS storage.
+// less performance but more reliable than deleting by prefix. 
+// This is because the urls may not be in the same folder structure as the prefix.
+export const deleteListingImages = async (imageUrls) => {
+  try {
+    const bucketName = process.env.GCLOUD_BUCKET_NAME;
+    const gcsDomain = process.env.GCLOUD_STORAGE_DOMAIN || 'https://storage.googleapis.com';
+    const prefix = `${gcsDomain}/${bucketName}/`;
+    for (const url of imageUrls) {
+      if (!url.startsWith(prefix)) {
+        console.warn(`URL does not belong to bucket: ${url}`);
+        continue;
+      }
+      const filePath = url.slice(prefix.length);
+      log(`Deleting listing image from GCS: ${filePath}`);
+      await bucket.file(filePath).delete();
+      log(`Deleted listing image: ${filePath}`);
+    }
+  } catch (error) {
+    console.error(`Error deleting listing images from GCS:`, error);
     throw error;
   }
 };

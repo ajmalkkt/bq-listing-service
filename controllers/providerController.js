@@ -1,7 +1,8 @@
 import Provider from "../models/Provider.js";
+import Listing from "../models/Listing.js";
 import { getNextSequence } from "../utils/sequenceGenerator.js";
 import { log } from "console";
-import { uploadImageToGCS } from "../service/storageService.js";
+import { uploadImageToGCS, deleteProviderImages, deleteAllListingImagesForProvider } from "../service/storageService.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -210,8 +211,30 @@ export const deleteProvider = async (req, res) => {
     const deleted = await Provider.findOneAndDelete({ id: parseInt(id) });
     if (!deleted) return res.status(404).json({ message: "Provider not found" });
     log(`Deleted provider: ${id}`);
+    //Delete associated images from gcs storage.
+    await deleteProviderImages(id);
+    // Delete associated listings
+    await deleteListingsByProvider(id);
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * Delete listing and images when providerId is deleted (admin only).
+ * This function can take one provider attribute (id) and delete all listings associated with that provider.
+ */
+export const deleteListingsByProvider = async (providerId) => {
+  try {
+    log(`Deleting listings for provider: ${providerId}`);
+    // If you need the actual documents back before they vanish:
+    //const deletedDocs = await Listing.find({ providerId: parseInt(providerId) });
+    const deletedListings = await Listing.deleteMany({ providerId: parseInt(providerId) });
+    // Delete associated images from GCS storage using deleteAllListingImagesForProvider
+    await deleteAllListingImagesForProvider(providerId);
+    log(`Deleted ${deletedListings.deletedCount} listings for provider: ${providerId}`);
+  } catch (err) {
+    log(`Error deleting listings for provider ${providerId}:`, err);
   }
 };

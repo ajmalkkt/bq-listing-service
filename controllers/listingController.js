@@ -5,7 +5,7 @@ import { getNextSequence } from "../utils/sequenceGenerator.js";
 import { log } from "console";
 import { getCache, setCache } from "../utils/cacheHelper.js";
 import sortResults from "../utils/searchHelper.js";
-import { uploadImageToGCS } from '../service/storageService.js';
+import { uploadImageToGCS, deleteListingImages } from '../service/storageService.js';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -351,6 +351,15 @@ export const deleteListing = async (req, res) => {
     const { id } = req.params;
     const listing = await Listing.findOneAndDelete({ id });
     if (!listing) return res.status(404).json({ message: `Ads Listing with Id- ${id} not found` });
+    //delete asscociated images using url
+    if (listing.imageUrl || (listing.galleryUrls && listing.galleryUrls.length > 0)) {
+      const imageUrls = [];
+      if (listing.imageUrl) imageUrls.push(listing.imageUrl);
+      if (listing.galleryUrls && listing.galleryUrls.length > 0) {
+        imageUrls.push(...listing.galleryUrls);
+      }
+      await deleteListingImages(imageUrls);
+    }
     res.status(200).json({ message: "Ads Listing deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: `Error deleting listing id: ${id}`, error: err.message });
