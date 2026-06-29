@@ -11,6 +11,7 @@ const listingSchema = new mongoose.Schema({
   
   // Generic attributes object - keys depend on vertical
   attributes: { type: mongoose.Schema.Types.Mixed },
+  additionalAttributes: { type: mongoose.Schema.Types.Mixed },
   
   // Pricing structure
   pricing: {

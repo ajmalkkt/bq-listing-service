@@ -120,6 +120,10 @@ export const createListing = async (req, res) => {
     if (data.location) newListingData.location = JSON.parse(data.location);
     if (data.validity) newListingData.validity = JSON.parse(data.validity);
     if (data.attributes) newListingData.attributes = JSON.parse(data.attributes);
+    if (data.additionalAttributes) {
+      newListingData.additionalAttributes = JSON.parse(data.additionalAttributes);
+      if (!newListingData.attributes) newListingData.attributes = newListingData.additionalAttributes;
+    }
 
     // Handle Main Image
     if (req.files && req.files.image && req.files.image[0]) {
@@ -188,6 +192,10 @@ export const updateListing = async (req, res) => {
     if (data.location) updateData.location = JSON.parse(data.location);
     if (data.validity) updateData.validity = JSON.parse(data.validity);
     if (data.attributes) updateData.attributes = JSON.parse(data.attributes);
+    if (data.additionalAttributes) {
+      updateData.additionalAttributes = JSON.parse(data.additionalAttributes);
+      if (!updateData.attributes) updateData.attributes = updateData.additionalAttributes;
+    }
 
     // Provide default fallback variables for title and providerId in case they are not in the update payload
     let title = data.title || `listing-${id}`;

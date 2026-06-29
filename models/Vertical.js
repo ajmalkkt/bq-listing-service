@@ -9,7 +9,8 @@ const verticalSchema = new mongoose.Schema({
   icon: { type: String },
   color: { type: String },
   route: { type: String },
-  providerTypes: [{ type: String }]
+  providerTypes: [{ type: String }],
+  additionalAttributes: { type: mongoose.Schema.Types.Mixed }
 }, { timestamps: true });
 
 export default mongoose.model("Vertical", verticalSchema);
