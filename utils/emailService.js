@@ -143,3 +143,71 @@ function getMailOptions(name, phone, email, message) {
     `,
   };
 }
+
+export const sendListingEnquiryEmail = async ({
+  senderName,
+  senderEmail,
+  senderPhone,
+  message,
+  adTitle,
+  providerEmail
+}) => {
+  const ccEmail = process.env.ENQUIRY_EMAIL || 'info@browseqatar.com';
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: providerEmail || ccEmail,
+    cc: ccEmail,
+    subject: `Enquiry about your Ad: "${adTitle}" - BrowseQatar`,
+    html: `
+      <h3>New Enquiry about your Ad: "${adTitle}"</h3>
+      <p><strong>Sender Name:</strong> ${senderName}</p>
+      <p><strong>Sender Email:</strong> ${senderEmail}</p>
+      <p><strong>Sender Phone:</strong> ${senderPhone || 'Not provided'}</p>
+      <p><strong>Message:</strong></p>
+      <p>${message}</p>
+    `,
+  };
+
+  try {
+    const info = await privateTransporter.sendMail(mailOptions);
+    console.log('Listing Enquiry Email sent: ' + info.response);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending listing enquiry email:', error);
+    throw error;
+  }
+};
+
+export const sendReplyToListingEnquiry = async ({
+  senderName,
+  senderEmail,
+  adTitle,
+  message
+}) => {
+  const htmlEmail = `
+    <h3>Hello ${senderName},</h3>
+    <p>Your enquiry about the Ad: "<strong>${adTitle}</strong>" has been sent to the Ad owner.</p>
+    <p><strong>Your Message:</strong></p>
+    <blockquote style="border-left: 3px solid #ccc; padding-left: 10px; margin-left: 0; color: #555;">
+      ${message}
+    </blockquote>
+    <p>Thank you for using BrowseQatar!</p>
+  `;
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: senderEmail,
+    subject: `Your enquiry has been sent: "${adTitle}" - BrowseQatar`,
+    html: htmlEmail,
+  };
+
+  try {
+    const info = await privateTransporter.sendMail(mailOptions);
+    console.log('Reply to listing enquiry sent: ' + info.response);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending reply to listing enquiry:', error);
+    throw error;
+  }
+};

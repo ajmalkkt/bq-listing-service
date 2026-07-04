@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import crypto from "crypto";
+import Vertical from "../models/Vertical.js";
 
 const algorithm = "aes-256-cbc";
 
@@ -9,6 +10,110 @@ const decryptPassword = (encryptedPassword, ivHex, secretKey) => {
   let decrypted = decipher.update(encryptedPassword, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
+};
+
+const seedVerticals = async () => {
+  try {
+    const defaultVerticals = [
+      {
+        id: "vehicles",
+        name: "Vehicles Buy & Sell",
+        enabled: true,
+        description: "Buy and sell vehicles with verified dealers",
+        icon: "Car",
+        color: "#1E3A8A",
+        route: "/vehicles",
+        providerTypes: ["Dealer", "Individual Seller", "Company"],
+        additionalAttributes: [
+          { name: "make", label: "Make", type: "text", required: false },
+          { name: "year", label: "Year", type: "number", required: false },
+          { name: "color", label: "Color", type: "text", required: false },
+          { name: "mileage", label: "Mileage (km)", type: "number", required: false },
+          { name: "transmission", label: "Transmission", type: "select", options: ["Automatic", "Manual"], required: false }
+        ]
+      },
+      {
+        id: "accommodations",
+        name: "Accommodation",
+        enabled: true,
+        description: "Find perfect accommodation for your stay",
+        icon: "Home",
+        color: "#059669",
+        route: "/accommodations",
+        providerTypes: ["Landlord", "Broker", "Property Manager"],
+        additionalAttributes: [
+          { name: "bedrooms", label: "Bedrooms", type: "number", required: false },
+          { name: "bathrooms", label: "Bathrooms", type: "number", required: false },
+          { name: "type", label: "Property Type", type: "select", options: ["Apartment", "Villa", "House", "Room"], required: false },
+          { name: "furnishing", label: "Furnishing", type: "select", options: ["Furnished", "Unfurnished", "Semi-Furnished"], required: false }
+        ]
+      },
+      {
+        id: "services",
+        name: "Services",
+        enabled: true,
+        description: "Find professional services near you",
+        icon: "Wrench",
+        color: "#D97706",
+        route: "/services",
+        providerTypes: ["Individual Provider", "Company", "Agency"],
+        additionalAttributes: [
+          { name: "experience", label: "Experience", type: "text", required: false },
+          { name: "serviceType", label: "Service Type", type: "text", required: false }
+        ]
+      },
+      {
+        id: "classifieds",
+        name: "Classifieds Buy & Sell",
+        enabled: true,
+        description: "Buy and sell items in your neighborhood",
+        icon: "Package",
+        color: "#7C3AED",
+        route: "/classifieds",
+        providerTypes: ["Individual Seller", "Store"],
+        additionalAttributes: [
+          { name: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Good", "Fair"], required: false },
+          { name: "brand", label: "Brand", type: "text", required: false }
+        ]
+      },
+      {
+        id: "jobs",
+        name: "Job Listing",
+        enabled: true,
+        description: "Explore job opportunities in your field",
+        icon: "Briefcase",
+        color: "#DC2626",
+        route: "/jobs",
+        providerTypes: ["Employer", "Recruitment Agency"],
+        additionalAttributes: [
+          { name: "jobType", label: "Job Type", type: "select", options: ["Full-time", "Part-time", "Contract", "Freelance"], required: false },
+          { name: "experienceLevel", label: "Experience Level", type: "select", options: ["Entry", "Mid", "Senior", "Executive"], required: false }
+        ]
+      }
+    ];
+
+    for (const vData of defaultVerticals) {
+      const existing = await Vertical.findOne({ id: vData.id });
+      if (!existing) {
+        const vertical = new Vertical(vData);
+        await vertical.save();
+        console.log(`Seeded vertical: ${vData.id}`);
+      } else {
+        existing.additionalAttributes = vData.additionalAttributes;
+        existing.providerTypes = vData.providerTypes;
+        existing.name = vData.name;
+        existing.enabled = vData.enabled;
+        existing.description = vData.description;
+        existing.icon = vData.icon;
+        existing.color = vData.color;
+        existing.route = vData.route;
+        await existing.save();
+        console.log(`Updated vertical additionalAttributes: ${vData.id}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error seeding verticals:", error.message);
+  }
 };
 
 const connectDB = async () => {
@@ -29,6 +134,7 @@ const connectDB = async () => {
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    //await seedVerticals();
   } catch (err) {
     console.error("MongoDB connection error:", err.message);
     process.exit(1);

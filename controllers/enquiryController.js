@@ -1,5 +1,15 @@
-import { sendEmail, sendEmailUsingNodemailer, sendReplyEmailUsingNodemailer, sendAccountCreatedEmail, sendTokenEmail } from "../utils/emailService.js";
+import { 
+  sendEmail, 
+  sendEmailUsingNodemailer, 
+  sendReplyEmailUsingNodemailer, 
+  sendAccountCreatedEmail, 
+  sendTokenEmail,
+  sendListingEnquiryEmail,
+  sendReplyToListingEnquiry
+} from "../utils/emailService.js";
 import Enquiry from "../models/Enquiry.js";
+import Listing from "../models/Listing.js";
+import Provider from "../models/Provider.js";
 
 export const sendEnquiryEmail = async (req, res) => {
   try {
@@ -186,5 +196,75 @@ export const triggerTokenEmail = async (req, res) => {
   } catch (error) {
     console.error("Error in triggerTokenEmail:", error);
     res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+  }
+};
+
+// Send listing enquiry email
+export const sendListingAdEnquiryEmail = async (req, res) => {
+  try {
+    const { listingId, userName, email, phone, message } = req.body;
+    console.log(`enquiryController:Listing enquiry received for listingId: ${listingId}, from name: ${userName}, email: ${email}, phone: ${phone}`);
+
+    // Resolve name
+    const name = userName ? userName : (req.user && req.user.name ? req.user.name : email.split("@")[0]);
+
+    // Find listing
+    const listing = await Listing.findOne({ id: listingId });
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    // Find provider to get provider email
+    let providerEmail = null;
+    if (listing.providerId) {
+      const provider = await Provider.findOne({ id: listing.providerId });
+      if (provider && provider.email) {
+        providerEmail = provider.email;
+      }
+    }
+
+    // Fallback to listing.ownerLogin (the owner/restaurant owner email) if no provider email is resolved
+    if (!providerEmail) {
+      providerEmail = listing.ownerLogin;
+    }
+
+    // Save enquiry to MongoDB (so it gets logged)
+    const newEnquiry = new Enquiry({
+      name,
+      email,
+      phone,
+      message: `Enquiry about Ad: "${listing.title}" (ID: ${listing.id}). Message: ${message}`,
+      ownerLogin: providerEmail
+    });
+    const savedEnq = await newEnquiry.save();
+    console.log(`Listing Enquiry saved with ID: ${savedEnq._id}`);
+
+    // Send emails
+    const result = await sendListingEnquiryEmail({
+      senderName: name,
+      senderEmail: email,
+      senderPhone: phone,
+      message,
+      adTitle: listing.title,
+      providerEmail
+    });
+
+    if (result.success) {
+      console.log("Listing Enquiry email sent successfully to provider");
+      await sendReplyToListingEnquiry({
+        senderName: name,
+        senderEmail: email,
+        adTitle: listing.title,
+        message
+      });
+      console.log("Auto-reply sent successfully to user " + name);
+      res.status(200).json({ message: "Enquiry sent successfully" });
+    } else {
+      await Enquiry.findByIdAndUpdate(savedEnq._id, { status: 'SEND_FAILED' });
+      res.status(500).json({ error: "Failed to send enquiry email to provider" });
+    }
+  } catch (err) {
+    console.error("Error sending listing enquiry email:", err);
+    res.status(500).json({ error: err.message });
   }
 };

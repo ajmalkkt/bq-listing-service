@@ -3,7 +3,7 @@ import Provider from "../models/Provider.js";
 import Vertical from "../models/Vertical.js";
 import { getNextSequence } from "../utils/sequenceGenerator.js";
 import { log } from "console";
-import { getCache, setCache } from "../utils/cacheHelper.js";
+import { getCache, setCache, clearAllCache } from "../utils/cacheHelper.js";
 import sortResults from "../utils/searchHelper.js";
 import { uploadImageToGCS, deleteListingImages } from '../service/storageService.js';
 import fs from "fs";
@@ -371,5 +371,28 @@ export const deleteListing = async (req, res) => {
     res.status(200).json({ message: "Ads Listing deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: `Error deleting listing id: ${id}`, error: err.message });
+  }
+};
+
+/**
+ * Increment enquiry clicks
+ */
+export const incrementEnquiryClicks = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findOneAndUpdate(
+      { id },
+      { $inc: { enquiryClicks: 1 } },
+      { new: true }
+    );
+    if (!listing) return res.status(404).json({ message: `Listing with Id- ${id} not found` });
+    
+    // Clear cache
+    //clearAllCache(); //For testing , otherwise 3 hr cache clear is enough, as we are not showing enquiryClicks in listing list
+    
+    res.status(200).json({ success: true, enquiryClicks: listing.enquiryClicks || 0 });
+  } catch (err) {
+    console.error("Error incrementing enquiry clicks:", err);
+    res.status(500).json({ message: "Error incrementing enquiry clicks", error: err.message });
   }
 };

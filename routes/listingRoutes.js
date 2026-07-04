@@ -10,7 +10,8 @@ import {
   activateListing,
   bulkActivateListings,
   inActivateListings,
-  deleteListing
+  deleteListing,
+  incrementEnquiryClicks
 } from "../controllers/listingController.js";
 import { verifyAuthToken, verifyAdmin, requireRole } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
@@ -21,6 +22,7 @@ const router = express.Router();
 router.get("/", getAllListings);
 router.get("/verticals", getVerticals);
 router.get("/:id", getListingById);
+router.patch("/:id/enquire", incrementEnquiryClicks);
 
 const uploadFields = upload.fields([
   { name: 'image', maxCount: 1 },

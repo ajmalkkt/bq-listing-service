@@ -54,7 +54,8 @@ const listingSchema = new mongoose.Schema({
   // Metadata
   rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
-  ownerLogin: { type: String }
+  ownerLogin: { type: String },
+  enquiryClicks: { type: Number, default: 0 }
 }, { timestamps: true });
 
 // ⚡ Indexes for performance
