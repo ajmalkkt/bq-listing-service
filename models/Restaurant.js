@@ -18,6 +18,7 @@ const restaurantSchema = new mongoose.Schema({
   ownerLogin: { type: String },//email of restaurant owner
   active: { type: Boolean, default: true },
   menuImages: [{ type: String }], // Array of GCS URLs for menu page images
+  isPureVeg: { type: Boolean, default: false }, // Pure vegetarian restaurant flag
 }, { timestamps: true }); // timestamps: true will add createdAt and updatedAt fields
 
 export default mongoose.model("Restaurant", restaurantSchema);

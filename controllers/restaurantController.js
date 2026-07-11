@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 export const addOrUpdateRestaurant = async (req, res) => {
   try {
     //log("Add/Update Restaurant :", req.body);
-    const { id, name, address, phone, rating, cuisine, logoUrl, brandUrl, country } = req.body;
+    const { id, name, address, phone, rating, cuisine, logoUrl, brandUrl, country, isPureVeg } = req.body;
     const saveToDB = process.env.SAVE_IMAGES_TO_DB === "true";
     const restaurantId = id || (await getNextSequence("restaurants"));
 
@@ -33,6 +33,7 @@ export const addOrUpdateRestaurant = async (req, res) => {
       logoUrl,
       brandUrl,
       country,
+      isPureVeg: isPureVeg === true || isPureVeg === "true",
       ownerLogin: req.user.email, // Set ownerLogin from authenticated user's email 
     };
 
