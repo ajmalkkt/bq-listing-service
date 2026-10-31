@@ -7,7 +7,14 @@
     "icon": "UtensilsCrossed",
     "color": "#8B1538",
     "route": "/restaurants",
-    "providerTypes": ["Restaurant", "Cafe", "Food Truck", "Bakery", "Cloud Kitchen"]
+    "providerTypes": ["Restaurant", "Cafe", "Food Truck", "Bakery", "Cloud Kitchen"],
+    "subcategories": [],
+    "filters": [
+      { "key": "cuisine", "label": "Cuisine", "type": "multiselect" },
+      { "key": "location", "label": "Location", "type": "text" },
+      { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
+    ],
+    "additionalAttributes": []
   },
   {
     "id": "vehicles",
@@ -17,7 +24,27 @@
     "icon": "Car",
     "color": "#1E3A8A",
     "route": "/vehicles",
-    "providerTypes": ["Car Rental", "Dealership", "Private Seller", "Limousine Service"]
+    "providerTypes": ["Car Rental", "Dealership", "Private Seller", "Limousine Service"],
+    "subcategories": ["Cars", "Motorcycles & Bikes", "Commercial Vehicles", "Spare Parts & Accessories", "Boats & Marine"],
+    "filters": [
+      { "key": "bodyType", "label": "Vehicle Type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van"] },
+      { "key": "make", "label": "Make", "type": "text" },
+      { "key": "model", "label": "Model", "type": "text" },
+      { "key": "year", "label": "Year", "type": "range" },
+      { "key": "km", "label": "KM", "type": "range", "unit": "km" },
+      { "key": "transmission", "label": "Transmission", "type": "select", "options": ["Automatic", "Manual", "CVT", "Semi-Automatic"] },
+      { "key": "fuel", "label": "Fuel", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid"] },
+      { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
+    ],
+    "additionalAttributes": [
+      { "name": "bodyType", "label": "Vehicle Type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van"], "required": false },
+      { "name": "make", "label": "Make", "type": "text", "required": false },
+      { "name": "model", "label": "Model", "type": "text", "required": false },
+      { "name": "year", "label": "Year", "type": "number", "required": false },
+      { "name": "mileage", "label": "KM", "type": "number", "required": false },
+      { "name": "transmission", "label": "Transmission", "type": "select", "options": ["Automatic", "Manual", "CVT", "Semi-Automatic"], "required": false },
+      { "name": "fuel", "label": "Fuel", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid"], "required": false }
+    ]
   },
   {
     "id": "accommodations",
@@ -27,7 +54,23 @@
     "icon": "Hotel",
     "color": "#14532D",
     "route": "/accommodations",
-    "providerTypes": ["Hotel", "Resort", "House", "Real Estate Agency", "Hostel", "Guest House"]
+    "providerTypes": ["Hotel", "Resort", "House", "Real Estate Agency", "Hostel", "Guest House"],
+    "subcategories": ["Rent (Apartment/Villa)", "Sale (Apartment/Villa)", "Commercial", "Shared/Partition", "Land & Plots"],
+    "filters": [
+      { "key": "propertyType", "label": "Property Type", "type": "select", "options": ["Apartment", "Villa", "Commercial", "Land"] },
+      { "key": "bedrooms", "label": "Bedrooms", "type": "range" },
+      { "key": "bathrooms", "label": "Bathrooms", "type": "range" },
+      { "key": "furnishing", "label": "Furnishing", "type": "select", "options": ["Furnished", "Semi-furnished", "Unfurnished"] },
+      { "key": "size", "label": "Size", "type": "range", "unit": "sq ft" },
+      { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
+    ],
+    "additionalAttributes": [
+      { "name": "propertyType", "label": "Property Type", "type": "select", "options": ["Apartment", "Villa", "Commercial", "Land"], "required": false },
+      { "name": "bedrooms", "label": "Bedrooms", "type": "number", "required": false },
+      { "name": "bathrooms", "label": "Bathrooms", "type": "number", "required": false },
+      { "name": "furnishing", "label": "Furnishing", "type": "select", "options": ["Furnished", "Semi-furnished", "Unfurnished"], "required": false },
+      { "name": "sizeSqFt", "label": "Size (sq ft)", "type": "number", "required": false }
+    ]
   },
   {
     "id": "services",
@@ -37,7 +80,16 @@
     "icon": "Briefcase",
     "color": "#7C2D12",
     "route": "/services",
-    "providerTypes": ["Cleaning", "Maintenance", "Consulting", "Legal", "IT Support"]
+    "providerTypes": ["Individual Provider", "Company", "Agency"],
+    "subcategories": ["Home Maintenance", "Cleaning & Laundry", "Moving & Transport", "IT & Digital", "Events & Catering", "Beauty & Fitness", "Legal & Business"],
+    "filters": [
+      { "key": "serviceType", "label": "Service Type", "type": "text" },
+      { "key": "location", "label": "Location", "type": "text" },
+      { "key": "provider", "label": "Provider", "type": "select", "options": ["Individual", "Agency"] }
+    ],
+    "additionalAttributes": [
+      { "name": "serviceType", "label": "Service Type", "type": "text", "required": false }
+    ]
   },
   {
     "id": "classifieds",
@@ -47,7 +99,17 @@
     "icon": "ShoppingBag",
     "color": "#831843",
     "route": "/classifieds",
-    "providerTypes": ["Electronics Store", "Furniture Store", "Private Seller", "Boutique"]
+    "providerTypes": ["Electronics Store", "Furniture Store", "Private Seller", "Boutique"],
+    "subcategories": ["Furniture", "Home Appliances", "Electronics", "Mobile Phones", "TVs", "Computers", "Books", "Clothing", "Sports", "Other"],
+    "filters": [
+      { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Like New", "Good", "Fair"] },
+      { "key": "brand", "label": "Brand", "type": "text" },
+      { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
+    ],
+    "additionalAttributes": [
+      { "name": "condition", "label": "Condition", "type": "select", "options": ["New", "Like New", "Good", "Fair"], "required": false },
+      { "name": "brand", "label": "Brand", "type": "text", "required": false }
+    ]
   },
   {
     "id": "jobs",
@@ -57,6 +119,18 @@
     "icon": "Users",
     "color": "#581C87",
     "route": "/jobs",
-    "providerTypes": ["Recruitment Agency", "Direct Employer", "Freelance Platform"]
+    "providerTypes": ["Recruitment Agency", "Direct Employer", "Freelance Platform"],
+    "subcategories": ["Jobs Offered", "Jobs Wanted"],
+    "industries": ["Accounting/Finance", "Customer Service", "IT/Telecom", "Sales/Marketing", "Drivers/Transport", "Domestic/Cleaning", "Hospitality/F&B", "Engineering/Construction"],
+    "filters": [
+      { "key": "jobType", "label": "Type (FT/PT/Contract)", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance"] },
+      { "key": "experience", "label": "Experience", "type": "text" },
+      { "key": "salary", "label": "Salary", "type": "range", "unit": "QAR" }
+    ],
+    "additionalAttributes": [
+      { "name": "jobType", "label": "Type (FT/PT/Contract)", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance"], "required": false },
+      { "name": "experience", "label": "Experience", "type": "text", "required": false },
+      { "name": "industry", "label": "Industry", "type": "select", "options": ["Accounting/Finance", "Customer Service", "IT/Telecom", "Sales/Marketing", "Drivers/Transport", "Domestic/Cleaning", "Hospitality/F&B", "Engineering/Construction"], "required": false }
+    ]
   }
 ]

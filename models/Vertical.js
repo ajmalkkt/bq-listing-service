@@ -10,6 +10,9 @@ const verticalSchema = new mongoose.Schema({
   color: { type: String },
   route: { type: String },
   providerTypes: [{ type: String }],
+  subcategories: [{ type: String }],
+  industries: [{ type: String }],
+  filters: [{ type: mongoose.Schema.Types.Mixed }],
   additionalAttributes: { type: mongoose.Schema.Types.Mixed }
 }, { timestamps: true });
 

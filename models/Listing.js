@@ -4,6 +4,7 @@ const listingSchema = new mongoose.Schema({
   id: { type: Number, unique: true },
   verticalId: { type: String, required: true },
   providerId: { type: Number, required: true },
+  providerType: { type: String },
   title: { type: String, required: true },
   description: { type: String },
   category: { type: String },
@@ -62,6 +63,7 @@ const listingSchema = new mongoose.Schema({
 listingSchema.index({ verticalId: 1, active: 1 });
 listingSchema.index({ providerId: 1 });
 listingSchema.index({ category: 1 });
+listingSchema.index({ verticalId: 1, subcategory: 1, active: 1 });
 listingSchema.index({ "location.city": 1 });
 
 export default mongoose.model("Listing", listingSchema);
