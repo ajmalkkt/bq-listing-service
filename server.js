@@ -14,6 +14,7 @@ import providerRoutes from "./routes/providerRoutes.js";
 import Listing from "./models/Listing.js";
 import Vertical from "./models/Vertical.js";
 import verticalRoutes from "./routes/verticalRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";
 import { clearAllCache, deleteCache } from "./utils/cacheHelper.js";
 import { set } from "mongoose";
 import Restaurant from "./models/Restaurant.js";
@@ -83,6 +84,7 @@ app.use("/api/auth", userRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/providers", providerRoutes);
 app.use("/api/verticals", verticalRoutes);
+app.use("/api/favorites", favoriteRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -168,7 +168,6 @@ export const sendListingEnquiryEmail = async ({
       <p>${message}</p>
     `,
   };
-
   try {
     const info = await privateTransporter.sendMail(mailOptions);
     console.log('Listing Enquiry Email sent: ' + info.response);
@@ -177,6 +176,65 @@ export const sendListingEnquiryEmail = async ({
     console.error('Error sending listing enquiry email:', error);
     throw error;
   }
+};
+
+const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+}[character]));
+
+export const sendFavoriteEmailVerification = async ({ email, verificationUrl }) => {
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject: "Confirm your Browse Qatar favorites email",
+    text: `Confirm your notification email by visiting: ${verificationUrl}`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#30252a"><h2 style="color:#851432">Confirm your email</h2><p>Confirm this address to receive Browse Qatar favorites updates.</p><p><a href="${escapeHtml(verificationUrl)}" style="display:inline-block;background:#851432;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Verify email</a></p><p>This link expires in 24 hours. If you did not request updates, you can ignore this message.</p></div>`,
+  };
+  await privateTransporter.sendMail(mailOptions);
+};
+
+export const sendFavoriteDigestEmail = async ({ email, newItems, changes, unsubscribeUrl }) => {
+  const sections = [];
+  const appendSection = (heading, items, renderItem) => {
+    const groups = new Map();
+    for (const item of items) {
+      const category = item.category || item.verticalName || "Browse Qatar";
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category).push(item);
+    }
+    for (const [category, groupedItems] of groups) {
+      sections.push(`<h3 style="color:#851432;margin:24px 0 8px">${escapeHtml(heading)} · ${escapeHtml(category)}</h3><ul style="padding-left:20px">${groupedItems.map(renderItem).join("")}</ul>`);
+    }
+  };
+  appendSection("New for you", newItems, (item) => {
+    const price = item.price === undefined ? "" : `<span style="color:#851432;font-weight:bold"> · ${escapeHtml(item.currency || "QAR")} ${escapeHtml(item.price)}</span>`;
+    return `<li style="margin:10px 0"><a href="${escapeHtml(item.url)}" style="color:#30252a;font-weight:bold">${escapeHtml(item.title)}</a>${price}<br><span style="color:#667085">${escapeHtml(item.location || "")}</span></li>`;
+  });
+  appendSection("Saved item updates", changes, (item) => {
+    const detail = item.change === "price"
+      ? `Price changed from ${escapeHtml(item.previousPrice)} to ${escapeHtml(item.price)} ${escapeHtml(item.currency || "QAR")}`
+      : item.available ? "This item is available again" : "This item is no longer available";
+    return `<li style="margin:10px 0"><a href="${escapeHtml(item.url)}" style="color:#30252a;font-weight:bold">${escapeHtml(item.title)}</a><br><span style="color:#667085">${detail}</span></li>`;
+  });
+  if (!sections.length) return { success: false, skipped: true };
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject: "Your Browse Qatar favorites update",
+    text: "New listings and updates are available in your Browse Qatar favorites. Open Browse Qatar to see them.",
+    html: `<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#30252a"><h2 style="color:#851432">Your Browse Qatar update</h2><p>Here are new matches and changes to your saved items.</p>${sections.join("")}<hr style="border:0;border-top:1px solid #ead9ca;margin:28px 0"><p style="font-size:12px;color:#667085">You received this because favorites email updates are enabled. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#851432">Unsubscribe</a></p></div>`,
+    headers: {
+      "List-Unsubscribe": `<${unsubscribeUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  };
+  await privateTransporter.sendMail(mailOptions);
+  return { success: true };
 };
 
 export const sendReplyToListingEnquiry = async ({
