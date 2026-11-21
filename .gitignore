@@ -17,6 +17,7 @@ dist-ssr
 gcs-key.json
 browseqatar-firebase-key.json
 secrets.json
+pwdUtil*
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

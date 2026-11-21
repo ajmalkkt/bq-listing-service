@@ -27,23 +27,33 @@
     "providerTypes": ["Car Rental", "Dealership", "Private Seller", "Limousine Service"],
     "subcategories": ["Cars", "Motorcycles & Bikes", "Commercial Vehicles", "Spare Parts & Accessories", "Boats & Marine"],
     "filters": [
-      { "key": "bodyType", "label": "Vehicle Type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van"] },
+      { "key": "bodyType", "label": "Vehicle type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van", "Truck", "Bus", "Minivan", "Motorcycle", "Scooter", "ATV", "UTV", "Bicycle", "Boat", "Yacht", "Jet Ski", "Trailer", "RV / Motorhome", "Commercial Vehicle", "Other"] },
       { "key": "make", "label": "Make", "type": "text" },
       { "key": "model", "label": "Model", "type": "text" },
-      { "key": "year", "label": "Year", "type": "range" },
-      { "key": "km", "label": "KM", "type": "range", "unit": "km" },
+      { "key": "year", "label": "Model year", "type": "range" },
+      { "key": "mileage", "label": "Mileage (km)", "type": "range", "unit": "km" },
+      { "key": "wheelDrive", "label": "Drive type", "type": "select", "options": ["RWD", "FWD", "2WD", "4WD", "AWD"] },
+      { "key": "fuelType", "label": "Fuel type", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid", "CNG", "LPG"] },
       { "key": "transmission", "label": "Transmission", "type": "select", "options": ["Automatic", "Manual", "CVT", "Semi-Automatic"] },
-      { "key": "fuel", "label": "Fuel", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid"] },
+      { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Refurbished", "Preloved"] },
+      { "key": "serviceHistory", "label": "Service history", "type": "select", "options": ["Full Service History", "Partial Service History", "No Service History", "Unknown"] },
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
     ],
     "additionalAttributes": [
-      { "name": "bodyType", "label": "Vehicle Type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van"], "required": false },
+      { "name": "bodyType", "label": "Vehicle type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van", "Truck", "Bus", "Minivan", "Motorcycle", "Scooter", "ATV", "UTV", "Bicycle", "Boat", "Yacht", "Jet Ski", "Trailer", "RV / Motorhome", "Commercial Vehicle", "Other"], "required": false },
       { "name": "make", "label": "Make", "type": "text", "required": false },
       { "name": "model", "label": "Model", "type": "text", "required": false },
-      { "name": "year", "label": "Year", "type": "number", "required": false },
-      { "name": "mileage", "label": "KM", "type": "number", "required": false },
+      { "name": "year", "label": "Model year", "type": "number", "required": false },
+      { "name": "mileage", "label": "Mileage (km)", "type": "number", "required": false },
+      { "name": "engineSize", "label": "Engine size", "type": "text", "required": false },
+      { "name": "wheelDrive", "label": "Drive type", "type": "select", "options": ["RWD", "FWD", "2WD", "4WD", "AWD"], "required": false },
+      { "name": "fuelType", "label": "Fuel type", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid", "CNG", "LPG"], "required": false },
+      { "name": "cylinders", "label": "Cylinders", "type": "number", "required": false },
       { "name": "transmission", "label": "Transmission", "type": "select", "options": ["Automatic", "Manual", "CVT", "Semi-Automatic"], "required": false },
-      { "name": "fuel", "label": "Fuel", "type": "select", "options": ["Petrol", "Diesel", "Electric", "Hybrid"], "required": false }
+      { "name": "color", "label": "Exterior color", "type": "text", "required": false },
+      { "name": "insideColor", "label": "Interior color", "type": "text", "required": false },
+      { "name": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Refurbished", "Preloved"], "required": false },
+      { "name": "serviceHistory", "label": "Service history", "type": "select", "options": ["Full Service History", "Partial Service History", "No Service History", "Unknown"], "required": false }
     ]
   },
   {
@@ -57,19 +67,32 @@
     "providerTypes": ["Hotel", "Resort", "House", "Real Estate Agency", "Hostel", "Guest House"],
     "subcategories": ["Rent (Apartment/Villa)", "Sale (Apartment/Villa)", "Commercial", "Shared/Partition", "Land & Plots"],
     "filters": [
-      { "key": "propertyType", "label": "Property Type", "type": "select", "options": ["Apartment", "Villa", "Commercial", "Land"] },
+      { "key": "transactionType", "label": "Transaction type", "type": "select", "options": ["For Rent", "For Sale"] },
+      { "key": "sector", "label": "Sector", "type": "select", "options": ["Residential", "Commercial", "International"] },
+      { "key": "propertyType", "label": "Property type", "type": "select", "options": ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop"] },
+      { "key": "area", "label": "Location / Area / Neighbourhood", "type": "text" },
       { "key": "bedrooms", "label": "Bedrooms", "type": "range" },
       { "key": "bathrooms", "label": "Bathrooms", "type": "range" },
-      { "key": "furnishing", "label": "Furnishing", "type": "select", "options": ["Furnished", "Semi-furnished", "Unfurnished"] },
-      { "key": "size", "label": "Size", "type": "range", "unit": "sq ft" },
+      { "key": "furnishing", "label": "Furnishing status", "type": "select", "options": ["Furnished", "Fully Furnished", "Semi-Furnished", "Unfurnished"] },
+      { "key": "parking", "label": "Parking", "type": "select", "options": ["Underground", "Dedicated Covered", "Dedicated Uncovered", "On-street"] },
+      { "key": "sizeSqFt", "label": "Size", "type": "range", "unit": "sq ft" },
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
     ],
     "additionalAttributes": [
-      { "name": "propertyType", "label": "Property Type", "type": "select", "options": ["Apartment", "Villa", "Commercial", "Land"], "required": false },
+      { "name": "transactionType", "label": "Transaction type", "type": "select", "options": ["For Rent", "For Sale"], "required": false },
+      { "name": "sector", "label": "Sector", "type": "select", "options": ["Residential", "Commercial", "International"], "required": false },
+      { "name": "propertyType", "label": "Property type", "type": "select", "options": ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop"], "required": false },
+      { "name": "area", "label": "Location / Area / Neighbourhood", "type": "text", "required": false },
       { "name": "bedrooms", "label": "Bedrooms", "type": "number", "required": false },
       { "name": "bathrooms", "label": "Bathrooms", "type": "number", "required": false },
-      { "name": "furnishing", "label": "Furnishing", "type": "select", "options": ["Furnished", "Semi-furnished", "Unfurnished"], "required": false },
-      { "name": "sizeSqFt", "label": "Size (sq ft)", "type": "number", "required": false }
+      { "name": "sizeSqFt", "label": "Size (sq ft)", "type": "number", "required": false },
+      { "name": "furnishing", "label": "Furnishing status", "type": "select", "options": ["Furnished", "Fully Furnished", "Semi-Furnished", "Unfurnished"], "required": false },
+      { "name": "parking", "label": "Parking", "type": "select", "options": ["Underground", "Dedicated Covered", "Dedicated Uncovered", "On-street"], "required": false },
+      { "name": "amenities", "label": "Features & amenities", "type": "textarea", "required": false },
+      { "name": "utilitiesIncluded", "label": "Utilities / bills included", "type": "text", "required": false },
+      { "name": "commission", "label": "Commission", "type": "text", "required": false },
+      { "name": "deposit", "label": "Deposit", "type": "text", "required": false },
+      { "name": "rentalTerm", "label": "Rental term", "type": "text", "required": false }
     ]
   },
   {
@@ -83,12 +106,17 @@
     "providerTypes": ["Individual Provider", "Company", "Agency"],
     "subcategories": ["Home Maintenance", "Cleaning & Laundry", "Moving & Transport", "IT & Digital", "Events & Catering", "Beauty & Fitness", "Legal & Business"],
     "filters": [
-      { "key": "serviceType", "label": "Service Type", "type": "text" },
-      { "key": "location", "label": "Location", "type": "text" },
-      { "key": "provider", "label": "Provider", "type": "select", "options": ["Individual", "Agency"] }
+      { "key": "serviceCategory", "label": "Category", "type": "select", "options": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"] },
+      { "key": "area", "label": "Location / Area", "type": "text" },
+      { "key": "price", "label": "Price", "type": "range", "unit": "QAR" },
+      { "key": "priceOnRequest", "label": "Price on request", "type": "select", "options": ["Yes", "No"] },
+      { "key": "provider", "label": "Provider", "type": "select", "options": ["Individual", "Agency", "Individual Provider", "Company"] }
     ],
     "additionalAttributes": [
-      { "name": "serviceType", "label": "Service Type", "type": "text", "required": false }
+      { "name": "serviceCategory", "label": "Category", "type": "select", "options": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"], "required": false },
+      { "name": "area", "label": "Location / Area", "type": "text", "required": false },
+      { "name": "experience", "label": "Experience", "type": "text", "required": false },
+      { "name": "priceOnRequest", "label": "Price on request", "type": "select", "options": ["Yes", "No"], "required": false }
     ]
   },
   {
@@ -102,13 +130,19 @@
     "providerTypes": ["Electronics Store", "Furniture Store", "Private Seller", "Boutique"],
     "subcategories": ["Furniture", "Home Appliances", "Electronics", "Mobile Phones", "TVs", "Computers", "Books", "Clothing", "Sports", "Other"],
     "filters": [
-      { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Like New", "Good", "Fair"] },
+      { "key": "classifiedCategory", "label": "Category", "type": "select", "options": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"] },
+      { "key": "subcategory", "label": "Sub-category", "type": "text" },
+      { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Preloved", "Like New", "Good", "Fair"] },
       { "key": "brand", "label": "Brand", "type": "text" },
+      { "key": "area", "label": "Location / Area", "type": "text" },
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
     ],
     "additionalAttributes": [
-      { "name": "condition", "label": "Condition", "type": "select", "options": ["New", "Like New", "Good", "Fair"], "required": false },
-      { "name": "brand", "label": "Brand", "type": "text", "required": false }
+      { "name": "classifiedCategory", "label": "Category", "type": "select", "options": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"], "required": false },
+      { "name": "subcategory", "label": "Sub-category", "type": "text", "required": false },
+      { "name": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Preloved", "Like New", "Good", "Fair"], "required": false },
+      { "name": "brand", "label": "Brand", "type": "text", "required": false },
+      { "name": "area", "label": "Location / Area", "type": "text", "required": false }
     ]
   },
   {
@@ -123,13 +157,29 @@
     "subcategories": ["Jobs Offered", "Jobs Wanted"],
     "industries": ["Accounting/Finance", "Customer Service", "IT/Telecom", "Sales/Marketing", "Drivers/Transport", "Domestic/Cleaning", "Hospitality/F&B", "Engineering/Construction"],
     "filters": [
-      { "key": "jobType", "label": "Type (FT/PT/Contract)", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance"] },
-      { "key": "experience", "label": "Experience", "type": "text" },
-      { "key": "salary", "label": "Salary", "type": "range", "unit": "QAR" }
+      { "key": "function", "label": "Function", "type": "select", "options": ["Accounting & Auditing", "Administration", "Advertising", "Quality Assurance & HSE", "Customer Service", "IT", "Skilled Trades & Technicians", "Healthcare & Medical", "Human Resources", "Sales & Marketing", "Engineering & Construction", "Hospitality & F&B", "Other"] },
+      { "key": "careerLevel", "label": "Career level", "type": "select", "options": ["Entry Level", "Mid Level", "Senior Level", "Manager", "Executive"] },
+      { "key": "workType", "label": "Work type / mode", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance", "On site", "Remote", "Hybrid"] },
+      { "key": "salary", "label": "Salary", "type": "range", "unit": "QAR" },
+      { "key": "salaryNegotiable", "label": "Negotiable salary", "type": "select", "options": ["Yes", "No"] },
+      { "key": "visaStatus", "label": "Visa status", "type": "text" },
+      { "key": "languages", "label": "Languages", "type": "text" },
+      { "key": "gender", "label": "Gender", "type": "select", "options": ["Any", "Male", "Female"] },
+      { "key": "area", "label": "Location / Area", "type": "text" },
+      { "key": "hiringEntity", "label": "Hiring entity", "type": "text" }
     ],
     "additionalAttributes": [
-      { "name": "jobType", "label": "Type (FT/PT/Contract)", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance"], "required": false },
-      { "name": "experience", "label": "Experience", "type": "text", "required": false },
+      { "name": "function", "label": "Function", "type": "select", "options": ["Accounting & Auditing", "Administration", "Advertising", "Quality Assurance & HSE", "Customer Service", "IT", "Skilled Trades & Technicians", "Healthcare & Medical", "Human Resources", "Sales & Marketing", "Engineering & Construction", "Hospitality & F&B", "Other"], "required": false },
+      { "name": "careerLevel", "label": "Career level", "type": "select", "options": ["Entry Level", "Mid Level", "Senior Level", "Manager", "Executive"], "required": false },
+      { "name": "salaryRangeMin", "label": "Minimum salary (QAR)", "type": "number", "required": false },
+      { "name": "salaryRangeMax", "label": "Maximum salary (QAR)", "type": "number", "required": false },
+      { "name": "salaryNegotiable", "label": "Negotiable salary", "type": "select", "options": ["Yes", "No"], "required": false },
+      { "name": "visaStatus", "label": "Visa status", "type": "text", "required": false },
+      { "name": "languages", "label": "Languages", "type": "text", "required": false },
+      { "name": "gender", "label": "Gender", "type": "select", "options": ["Any", "Male", "Female"], "required": false },
+      { "name": "workType", "label": "Work type / mode", "type": "select", "options": ["Full-time", "Part-time", "Contract", "Freelance", "On site", "Remote", "Hybrid"], "required": false },
+      { "name": "hiringEntity", "label": "Hiring entity", "type": "text", "required": false },
+      { "name": "area", "label": "Location / Area", "type": "text", "required": false },
       { "name": "industry", "label": "Industry", "type": "select", "options": ["Accounting/Finance", "Customer Service", "IT/Telecom", "Sales/Marketing", "Drivers/Transport", "Domestic/Cleaning", "Hospitality/F&B", "Engineering/Construction"], "required": false }
     ]
   }
