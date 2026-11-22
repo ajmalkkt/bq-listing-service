@@ -11,7 +11,7 @@ const listingSchema = new mongoose.Schema({
   category: { type: String },
   subcategory: { type: String },
   
-  // Generic attributes object - keys depend on vertical
+  // Canonical vertical-specific attributes (legacy additionalAttributes is read only)
   attributes: { type: mongoose.Schema.Types.Mixed },
   additionalAttributes: { type: mongoose.Schema.Types.Mixed },
   

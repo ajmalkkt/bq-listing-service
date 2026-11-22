@@ -115,21 +115,24 @@ export const createListing = async (req, res) => {
       ownerLogin: req.user?.email || 'admin'
     };
 
-    if (!newListingData.contactPhone && data.providerId) {
+    const submittedPhone = typeof data.contactPhone === "string" ? data.contactPhone.trim() : "";
+    if (submittedPhone) {
+      newListingData.contactPhone = submittedPhone;
+    } else if (data.providerId) {
       const provider = await Provider.findOne({ id: parseInt(data.providerId) });
       if (provider?.phone) newListingData.contactPhone = provider.phone.trim();
     }
-    if (newListingData.contactPhone) newListingData.contactPhone = newListingData.contactPhone.trim();
 
     // Parse JSON fields
     if (data.pricing) newListingData.pricing = JSON.parse(data.pricing);
     if (data.location) newListingData.location = JSON.parse(data.location);
     if (data.validity) newListingData.validity = JSON.parse(data.validity);
-    if (data.attributes) newListingData.attributes = JSON.parse(data.attributes);
-    if (data.additionalAttributes) {
-      newListingData.additionalAttributes = JSON.parse(data.additionalAttributes);
-      if (!newListingData.attributes) newListingData.attributes = newListingData.additionalAttributes;
+    if (data.attributes) {
+      newListingData.attributes = JSON.parse(data.attributes);
+    } else if (data.additionalAttributes) {
+      newListingData.attributes = JSON.parse(data.additionalAttributes);
     }
+    delete newListingData.additionalAttributes;
 
     // Handle Main Image
     if (req.files && req.files.image && req.files.image[0]) {
@@ -193,21 +196,29 @@ export const updateListing = async (req, res) => {
     
     const updateData = { ...data };
 
-    if (!updateData.contactPhone && data.providerId) {
-      const provider = await Provider.findOne({ id: parseInt(data.providerId) });
-      if (provider?.phone) updateData.contactPhone = provider.phone.trim();
+    const submittedPhone = typeof data.contactPhone === "string" ? data.contactPhone.trim() : "";
+    if (submittedPhone) {
+      updateData.contactPhone = submittedPhone;
+    } else {
+      const existingListing = await Listing.findOne({ id: parseInt(id) });
+      if (existingListing?.contactPhone) {
+        updateData.contactPhone = existingListing.contactPhone.trim();
+      } else if (data.providerId) {
+        const provider = await Provider.findOne({ id: parseInt(data.providerId) });
+        if (provider?.phone) updateData.contactPhone = provider.phone.trim();
+      }
     }
-    if (updateData.contactPhone) updateData.contactPhone = updateData.contactPhone.trim();
 
     // Parse JSON fields
     if (data.pricing) updateData.pricing = JSON.parse(data.pricing);
     if (data.location) updateData.location = JSON.parse(data.location);
     if (data.validity) updateData.validity = JSON.parse(data.validity);
-    if (data.attributes) updateData.attributes = JSON.parse(data.attributes);
-    if (data.additionalAttributes) {
-      updateData.additionalAttributes = JSON.parse(data.additionalAttributes);
-      if (!updateData.attributes) updateData.attributes = updateData.additionalAttributes;
+    if (data.attributes) {
+      updateData.attributes = JSON.parse(data.attributes);
+    } else if (data.additionalAttributes) {
+      updateData.attributes = JSON.parse(data.additionalAttributes);
     }
+    delete updateData.additionalAttributes;
 
     // Provide default fallback variables for title and providerId in case they are not in the update payload
     let title = data.title || `listing-${id}`;
@@ -265,7 +276,7 @@ export const updateListing = async (req, res) => {
     
     const listing = await Listing.findOneAndUpdate(
       { id: parseInt(id) },
-      { $set: updateData },
+      { $set: updateData, $unset: { additionalAttributes: "" } },
       { new: true }
     );
 
