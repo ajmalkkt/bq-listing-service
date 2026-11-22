@@ -5,6 +5,7 @@ const listingSchema = new mongoose.Schema({
   verticalId: { type: String, required: true },
   providerId: { type: Number, required: true },
   providerType: { type: String },
+  contactPhone: { type: String },
   title: { type: String, required: true },
   description: { type: String },
   category: { type: String },

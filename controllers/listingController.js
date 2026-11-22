@@ -115,6 +115,12 @@ export const createListing = async (req, res) => {
       ownerLogin: req.user?.email || 'admin'
     };
 
+    if (!newListingData.contactPhone && data.providerId) {
+      const provider = await Provider.findOne({ id: parseInt(data.providerId) });
+      if (provider?.phone) newListingData.contactPhone = provider.phone.trim();
+    }
+    if (newListingData.contactPhone) newListingData.contactPhone = newListingData.contactPhone.trim();
+
     // Parse JSON fields
     if (data.pricing) newListingData.pricing = JSON.parse(data.pricing);
     if (data.location) newListingData.location = JSON.parse(data.location);
@@ -186,6 +192,12 @@ export const updateListing = async (req, res) => {
     const saveToDB = process.env.SAVE_IMAGES_TO_DB === "true";
     
     const updateData = { ...data };
+
+    if (!updateData.contactPhone && data.providerId) {
+      const provider = await Provider.findOne({ id: parseInt(data.providerId) });
+      if (provider?.phone) updateData.contactPhone = provider.phone.trim();
+    }
+    if (updateData.contactPhone) updateData.contactPhone = updateData.contactPhone.trim();
 
     // Parse JSON fields
     if (data.pricing) updateData.pricing = JSON.parse(data.pricing);
