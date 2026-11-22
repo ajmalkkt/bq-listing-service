@@ -71,11 +71,9 @@
     "color": "#14532D",
     "route": "/accommodations",
     "providerTypes": ["Hotel", "Resort", "House", "Real Estate Agency", "Hostel", "Guest House"],
-    "subcategories": ["Rent (Apartment/Villa)", "Sale (Apartment/Villa)", "Commercial", "Shared/Partition", "Land & Plots"],
+    "subcategories": ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop", "Land & Plots", "Shared / Partition"],
     "filters": [
       { "key": "transactionType", "label": "Transaction type", "type": "select", "options": ["For Rent", "For Sale"] },
-      { "key": "sector", "label": "Sector", "type": "select", "options": ["Residential", "Commercial", "International"] },
-      { "key": "propertyType", "label": "Property type", "type": "select", "options": ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop"] },
       { "key": "area", "label": "Location / Area / Neighbourhood", "type": "text" },
       { "key": "bedrooms", "label": "Bedrooms", "type": "range" },
       { "key": "bathrooms", "label": "Bathrooms", "type": "range" },
@@ -86,8 +84,6 @@
     ],
     "additionalAttributes": [
       { "name": "transactionType", "label": "Transaction type", "type": "select", "options": ["For Rent", "For Sale"], "required": false },
-      { "name": "sector", "label": "Sector", "type": "select", "options": ["Residential", "Commercial", "International"], "required": false },
-      { "name": "propertyType", "label": "Property type", "type": "select", "options": ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop"], "required": false },
       { "name": "area", "label": "Location / Area / Neighbourhood", "type": "text", "required": false },
       { "name": "bedrooms", "label": "Bedrooms", "type": "number", "required": false },
       { "name": "bathrooms", "label": "Bathrooms", "type": "number", "required": false },

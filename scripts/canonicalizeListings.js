@@ -10,6 +10,7 @@ await connectDB();
 const listings = await Listing.find({});
 let attributesUpdated = 0;
 let phonesFilled = 0;
+let accommodationsNormalized = 0;
 
 for (const listing of listings) {
   const legacy = listing.additionalAttributes && typeof listing.additionalAttributes === "object"
@@ -30,6 +31,42 @@ for (const listing of listings) {
     attributesUpdated += 1;
   }
 
+  if (listing.verticalId === "accommodations") {
+    const propertyTypes = ["Apartment", "Villa", "Standalone Villa", "Compound Villa", "Studio", "Penthouse", "Duplex", "Hotel Apartment", "Villa Apartment", "Townhouse", "Office", "Warehouse", "Shop", "Land & Plots", "Shared / Partition"];
+    const existingAttributes = {
+      ...(listing.additionalAttributes || {}),
+      ...(listing.attributes || {})
+    };
+    let normalizedSubcategory = existingAttributes.propertyType;
+    if (!propertyTypes.includes(normalizedSubcategory)) normalizedSubcategory = listing.subcategory;
+    if (!propertyTypes.includes(normalizedSubcategory)) {
+      if (listing.subcategory === "Commercial") normalizedSubcategory = "Office";
+      else if (listing.subcategory === "Land & Plots") normalizedSubcategory = "Land & Plots";
+      else if (listing.subcategory === "Shared/Partition") normalizedSubcategory = "Shared / Partition";
+      else normalizedSubcategory = "Apartment";
+    }
+    const attributeUpdate = {
+      ...(listing.additionalAttributes || {}),
+      ...(listing.attributes || {})
+    };
+    delete attributeUpdate.sector;
+    delete attributeUpdate.propertyType;
+
+    await Listing.updateOne(
+      { id: listing.id },
+      {
+        $set: {
+          subcategory: normalizedSubcategory,
+          attributes: attributeUpdate
+        },
+        $unset: {
+          additionalAttributes: ""
+        }
+      }
+    );
+    accommodationsNormalized += 1;
+  }
+
   if (!String(listing.contactPhone || "").trim() && listing.providerId) {
     const provider = await Provider.findOne({ id: Number(listing.providerId) });
     if (provider?.phone) {
@@ -42,5 +79,5 @@ for (const listing of listings) {
   }
 }
 
-console.log(`Canonicalized ${attributesUpdated} listings and filled ${phonesFilled} missing phone fields.`);
+console.log(`Canonicalized ${attributesUpdated} listings, normalized ${accommodationsNormalized} accommodations, and filled ${phonesFilled} missing phone fields.`);
 process.exit(0);
