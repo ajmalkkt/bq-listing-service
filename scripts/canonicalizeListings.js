@@ -67,6 +67,40 @@ for (const listing of listings) {
     accommodationsNormalized += 1;
   }
 
+  if (listing.verticalId === "services") {
+    const serviceTypes = ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"];
+    const currentAttributes = {
+      ...(listing.additionalAttributes || {}),
+      ...(listing.attributes || {})
+    };
+    let normalizedSubcategory = currentAttributes.serviceCategory;
+    if (!serviceTypes.includes(normalizedSubcategory)) normalizedSubcategory = listing.subcategory;
+
+    const legacyMappings = {
+      "Cleaning & Laundry": "Cleaning",
+      "Moving & Transport": "Moving & Delivery",
+      "IT & Digital": "Tech & IT",
+      "Events & Catering": "Events",
+      "Beauty & Fitness": "Beauty & Spa",
+      "Legal & Business": "Business Services"
+    };
+    if (!serviceTypes.includes(normalizedSubcategory)) {
+      normalizedSubcategory = legacyMappings[normalizedSubcategory] || "Home Maintenance";
+    }
+
+    delete currentAttributes.serviceCategory;
+    await Listing.updateOne(
+      { id: listing.id },
+      {
+        $set: {
+          subcategory: normalizedSubcategory,
+          attributes: { ...currentAttributes, serviceCategory: normalizedSubcategory }
+        },
+        $unset: { additionalAttributes: "" }
+      }
+    );
+  }
+
   if (!String(listing.contactPhone || "").trim() && listing.providerId) {
     const provider = await Provider.findOne({ id: Number(listing.providerId) });
     if (provider?.phone) {

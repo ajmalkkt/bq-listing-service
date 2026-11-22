@@ -43,7 +43,6 @@
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
     ],
     "additionalAttributes": [
-      { "name": "bodyType", "label": "Vehicle type", "type": "select", "options": ["Sedan", "SUV", "Coupe", "Hatchback", "Pickup", "Van", "Truck", "Bus", "Minivan", "Motorcycle", "Scooter", "ATV", "UTV", "Bicycle", "Boat", "Yacht", "Jet Ski", "Trailer", "RV / Motorhome", "Commercial Vehicle", "Other"], "required": false },
       { "name": "make", "label": "Make", "type": "text", "required": false },
       { "name": "model", "label": "Model", "type": "text", "required": false },
       { "name": "year", "label": "Model year", "type": "number", "required": false },
@@ -106,16 +105,15 @@
     "color": "#7C2D12",
     "route": "/services",
     "providerTypes": ["Individual Provider", "Company", "Agency"],
-    "subcategories": ["Home Maintenance", "Cleaning & Laundry", "Moving & Transport", "IT & Digital", "Events & Catering", "Beauty & Fitness", "Legal & Business"],
+    "subcategories": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"],
     "filters": [
-      { "key": "serviceCategory", "label": "Category", "type": "select", "options": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"] },
+      { "key": "serviceCategory", "label": "Service type", "type": "select", "options": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"] },
       { "key": "area", "label": "Location / Area", "type": "text" },
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" },
       { "key": "priceOnRequest", "label": "Price on request", "type": "select", "options": ["Yes", "No"] },
       { "key": "provider", "label": "Provider", "type": "select", "options": ["Individual", "Agency", "Individual Provider", "Company"] }
     ],
     "additionalAttributes": [
-      { "name": "serviceCategory", "label": "Category", "type": "select", "options": ["Home Maintenance", "Education", "Business Services", "Tech & IT", "Automotive", "Cleaning", "Events", "Moving & Delivery", "Fashion & Tailoring", "Domestic Help", "Travel", "AC Repair", "Construction", "Health & Wellness", "Pest Control", "Beauty & Spa", "Pet Services", "Furniture & Decor", "Catering & Venues", "Facility Management"], "required": false },
       { "name": "area", "label": "Location / Area", "type": "text", "required": false },
       { "name": "experience", "label": "Experience", "type": "text", "required": false },
       { "name": "priceOnRequest", "label": "Price on request", "type": "select", "options": ["Yes", "No"], "required": false }
@@ -130,18 +128,17 @@
     "color": "#831843",
     "route": "/classifieds",
     "providerTypes": ["Electronics Store", "Furniture Store", "Private Seller", "Boutique"],
-    "subcategories": ["Furniture", "Home Appliances", "Electronics", "Mobile Phones", "TVs", "Computers", "Books", "Clothing", "Sports", "Other"],
+    "subcategories": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"],
     "filters": [
-      { "key": "classifiedCategory", "label": "Category", "type": "select", "options": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"] },
-      { "key": "subcategory", "label": "Sub-category", "type": "text" },
+      { "key": "classifiedCategory", "label": "Item / service category", "type": "select", "options": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"] },
       { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Preloved", "Like New", "Good", "Fair"] },
+      { "key": "warranty", "label": "Warranty", "type": "select", "options": ["Yes", "No"] },
       { "key": "brand", "label": "Brand", "type": "text" },
       { "key": "area", "label": "Location / Area", "type": "text" },
       { "key": "price", "label": "Price", "type": "range", "unit": "QAR" }
     ],
     "additionalAttributes": [
-      { "name": "classifiedCategory", "label": "Category", "type": "select", "options": ["Mobile Phones & Tablets", "Electronics", "Furniture & Decor", "Fashion & Beauty", "Kids & Toys", "Sports & Hobbies", "Machinery", "Equipment & Materials", "Home Appliances", "Books", "Other"], "required": false },
-      { "name": "subcategory", "label": "Sub-category", "type": "text", "required": false },
+      { "name": "warranty", "label": "Warranty", "type": "select", "options": ["Yes", "No"], "required": false },
       { "name": "condition", "label": "Condition", "type": "select", "options": ["New", "Used", "Preloved", "Like New", "Good", "Fair"], "required": false },
       { "name": "brand", "label": "Brand", "type": "text", "required": false },
       { "name": "area", "label": "Location / Area", "type": "text", "required": false }
@@ -171,8 +168,6 @@
       { "key": "hiringEntity", "label": "Hiring entity", "type": "text" }
     ],
     "additionalAttributes": [
-      { "name": "function", "label": "Function", "type": "select", "options": ["Accounting & Auditing", "Administration", "Advertising", "Quality Assurance & HSE", "Customer Service", "IT", "Skilled Trades & Technicians", "Healthcare & Medical", "Human Resources", "Sales & Marketing", "Engineering & Construction", "Hospitality & F&B", "Other"], "required": false },
-      { "name": "careerLevel", "label": "Career level", "type": "select", "options": ["Entry Level", "Mid Level", "Senior Level", "Manager", "Executive"], "required": false },
       { "name": "salaryRangeMin", "label": "Minimum salary (QAR)", "type": "number", "required": false },
       { "name": "salaryRangeMax", "label": "Maximum salary (QAR)", "type": "number", "required": false },
       { "name": "salaryNegotiable", "label": "Negotiable salary", "type": "select", "options": ["Yes", "No"], "required": false },
