@@ -115,15 +115,35 @@ SENDGRID_API_KEY=SG.xxxxx
 
 # API Security
 API_TOKEN=your-internal-api-token
+
+# Qatar news, event, and stock feeds (server-side only)
+QATAR_CURRENTS_API_KEY=your-currents-api-key
+QATAR_SEARCHAPI_KEY=your-searchapi-key
+QATAR_TWELVE_DATA_KEY=your-twelve-data-api-key
+QATAR_OPEN_DATASET_ID=your-valid-event-dataset-id
 ```
 
 > **Note:** Never commit `.env` or `serviceAccountKey.json` to version control. Both are listed in `.gitignore`.
+> Configure the three Qatar feed keys as runtime secrets in production; the local `.env` is not deployed.
 
 ---
 
 ## API Reference
 
 All routes are prefixed with `/api`. Authentication uses Firebase Bearer tokens unless marked **Public**.
+
+### Qatar Feeds
+
+Base path: `/api/qatar-feeds` (public GET endpoints)
+
+| Endpoint | Description | Cache |
+|----------|-------------|-------|
+| `/stocks` | Qatar Exchange quotes from Yahoo Finance and U.S. quotes from Twelve Data, accumulated in cache | Full refresh about every 2 hours |
+| `/news?language=en&limit=15` | Qatar news articles | 24 hours |
+| `/events?q=events%20in%20Doha` | Qatar event search results | 24 hours |
+
+Provider credentials are read only by the backend. GDELT is used as the keyless news fallback. A public data.gov.qa event fallback can be enabled by configuring `QATAR_OPEN_DATASET_ID` with a valid event-calendar dataset ID.
+Qatar Exchange symbols are requested from Yahoo Finance using the `.QA` suffix and cached by symbol set for 5 minutes. U.S. symbols are requested individually from Twelve Data in groups of up to five every 2 minutes. The active list has 8 Qatar and 7 U.S. symbols; Twelve Data is used for 7 credits per full refresh, while full refreshes start about every 2 hours. Twelve Data can still return 429 when the key's quota is exhausted or shared with other requests; the service honors `Retry-After` with a minimum 2-minute delay and retries the failed symbols. Symbols unavailable from their provider are logged and skipped.
 
 ### Listings
 

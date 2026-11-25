@@ -15,6 +15,7 @@ import Listing from "./models/Listing.js";
 import Vertical from "./models/Vertical.js";
 import verticalRoutes from "./routes/verticalRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
+import qatarFeedsRoutes from "./routes/qatarFeedsRoutes.js";
 import { clearAllCache, deleteCache } from "./utils/cacheHelper.js";
 import { set } from "mongoose";
 import Restaurant from "./models/Restaurant.js";
@@ -55,6 +56,7 @@ const corsOptions = {
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    exposedHeaders: ["Retry-After"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -85,6 +87,7 @@ app.use("/api/listings", listingRoutes);
 app.use("/api/providers", providerRoutes);
 app.use("/api/verticals", verticalRoutes);
 app.use("/api/favorites", favoriteRoutes);
+app.use("/api/qatar-feeds", qatarFeedsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
